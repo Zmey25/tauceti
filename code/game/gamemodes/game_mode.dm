@@ -22,7 +22,7 @@
 	var/explosion_in_progress = 0 //sit back and relax
 	var/list/datum/mind/modePlayer = new
 	var/list/restricted_jobs = list()	// Jobs it doesn't make sense to be.  I.E chaplain or AI cultist
-	var/list/protected_jobs = list()	// Jobs that can't be tratiors because
+	var/list/protected_jobs = list()	// Jobs that can't be traitors because
 	var/required_players = 0
 	var/required_players_secret = 0 //Minimum number of players for that game mode to be chose in Secret
 	var/required_enemies = 0
@@ -46,7 +46,7 @@ Stealthy and Inconspicuous Weapons;
 /obj/item/weapon/cartridge/syndicate:3:Detomatix PDA Cartridge;
 Whitespace:Seperator;
 Stealth and Camouflage Items;
-/obj/item/clothing/under/chameleon:3:Chameleon Jumpsuit;
+/obj/item/weapon/storage/box/syndie_kit/chameleon:3:Chameleon Kit;
 /obj/item/clothing/shoes/syndigaloshes:2:No-Slip Syndicate Shoes;
 /obj/item/weapon/card/id/syndicate:2:Agent ID card;
 /obj/item/clothing/mask/gas/voice:4:Voice Changer;
@@ -113,8 +113,6 @@ Implants;
 	feedback_set_details("round_start","[time2text(world.realtime)]")
 	if(ticker && ticker.mode)
 		feedback_set_details("game_mode","[ticker.mode]")
-	if(revdata)
-		feedback_set_details("revision","[revdata.revision]")
 	feedback_set_details("server_ip","[world.internet_address]:[world.port]")
 	return 1
 
@@ -250,7 +248,7 @@ Implants;
 	for (var/obj/machinery/computer/communications/comm in machines)
 		if (!(comm.stat & (BROKEN | NOPOWER)) && comm.prints_intercept)
 			var/obj/item/weapon/paper/intercept = new /obj/item/weapon/paper( comm.loc )
-			intercept.name = "paper - 'Cent. Com. Status Summary'"
+			intercept.name = "Cent. Com. Status Summary"
 			intercept.info = intercepttext
 
 			comm.messagetitle.Add("Cent. Com. Status Summary")

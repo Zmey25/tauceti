@@ -75,21 +75,21 @@ datum/borrowbook // Datum used to keep track of who has borrowed what when and f
 	if(href_list["settitle"])
 		var/newtitle = input("Enter a title to search for:") as text|null
 		if(newtitle)
-			title = sanitize(newtitle)
+			title = sanitize_alt(newtitle)
 		else
 			title = null
 		title = sanitizeSQL(title)
 	if(href_list["setcategory"])
 		var/newcategory = input("Choose a category to search for:") in list("Any", "Fiction", "Non-Fiction", "Adult", "Reference", "Religion")
 		if(newcategory)
-			category = sanitize(newcategory)
+			category = sanitize_alt(newcategory)
 		else
 			category = "Any"
 		category = sanitizeSQL(category)
 	if(href_list["setauthor"])
 		var/newauthor = input("Enter an author to search for:") as text|null
 		if(newauthor)
-			author = sanitize(newauthor)
+			author = sanitize_alt(newauthor)
 		else
 			author = null
 		author = sanitizeSQL(author)
@@ -220,7 +220,7 @@ datum/borrowbook // Datum used to keep track of who has borrowed what when and f
 				dat += "<FONT color=red>No data found in scanner memory.</FONT><BR>"
 			else
 				dat += {"<TT>Data marked for upload...</TT><BR>
-				<TT>Title: </TT>[scanner.cache.name]<BR>"}
+				<TT>Title: </TT>[sanitize_popup(scanner.cache.name)]<BR>"}
 				if(!scanner.cache.author)
 					scanner.cache.author = "Anonymous"
 				dat += {"<TT>Author: </TT><A href='?src=\ref[src];setauthor=1'>[scanner.cache.author]</A><BR>
@@ -300,13 +300,13 @@ datum/borrowbook // Datum used to keep track of who has borrowed what when and f
 		if(checkoutperiod < 1)
 			checkoutperiod = 1
 	if(href_list["editbook"])
-		buffer_book = copytext(sanitize(input("Enter the book's title:") as text|null),1,MAX_MESSAGE_LEN)
+		buffer_book = sanitize_alt(copytext(input("Enter the book's title:") as text|null,1,MAX_MESSAGE_LEN))
 	if(href_list["editmob"])
-		buffer_mob = copytext(sanitize(input("Enter the recipient's name:") as text|null),1,MAX_NAME_LEN)
+		buffer_mob = sanitize_alt(copytext(input("Enter the recipient's name:") as text|null,1,MAX_NAME_LEN))
 	if(href_list["checkout"])
 		var/datum/borrowbook/b = new /datum/borrowbook
-		b.bookname = sanitize(buffer_book)
-		b.mobname = sanitize(buffer_mob)
+		b.bookname = sanitize_alt(buffer_book)//нужно ли, TODO:CYRILLIC
+		b.mobname = sanitize_alt(buffer_mob)
 		b.getdate = world.time
 		b.duedate = world.time + (checkoutperiod * 600)
 		checkouts.Add(b)
@@ -317,7 +317,7 @@ datum/borrowbook // Datum used to keep track of who has borrowed what when and f
 		var/obj/item/weapon/book/b = locate(href_list["delbook"])
 		inventory.Remove(b)
 	if(href_list["setauthor"])
-		var/newauthor = copytext(sanitize(input("Enter the author's name: ") as text|null),1,MAX_MESSAGE_LEN)
+		var/newauthor = sanitize_alt(copytext(input("Enter the author's name: ") as text|null,1,MAX_MESSAGE_LEN))
 		if(newauthor)
 			scanner.cache.author = newauthor
 	if(href_list["setcategory"])
@@ -339,7 +339,7 @@ datum/borrowbook // Datum used to keep track of who has borrowed what when and f
 						var/sqlcontent = dbcon.Quote(scanner.cache.dat)
 						var/sqlcategory = dbcon.Quote(upload_category)
 						*/
-						var/sqltitle = sanitizeSQL(scanner.cache.name)
+						var/sqltitle = sanitizeSQL(sanitize_popup(scanner.cache.name))
 						var/sqlauthor = sanitizeSQL(scanner.cache.author)
 						var/sqlcontent = sanitizeSQL(scanner.cache.dat)
 						var/sqlcategory = sanitizeSQL(upload_category)
@@ -367,7 +367,7 @@ datum/borrowbook // Datum used to keep track of who has borrowed what when and f
 
 			while(query.NextRow())
 				var/author = query.item[2]
-				var/title = query.item[3]
+				var/title = sanitize_chat(query.item[3])
 				var/content = query.item[4]
 				var/obj/item/weapon/book/B = new(src.loc)
 				B.name = "Book: [title]"

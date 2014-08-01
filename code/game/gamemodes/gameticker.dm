@@ -58,8 +58,13 @@ var/global/datum/controller/gameticker/ticker
 				vote.process()
 			if(going)
 				pregame_timeleft--
-/*			if(pregame_timeleft == config.vote_autogamemode_timeleft) //Никаких сервов воутоёбов
-				vote.autogamemode() */
+			if(pregame_timeleft == config.vote_autogamemode_timeleft)
+				if(!vote.time_remaining)
+					vote.autogamemode()	//Quit calling this over and over and over and over.
+					while(vote.time_remaining)
+						for(var/i=0, i<10, i++)
+							sleep(1)
+							vote.process()
 			if(pregame_timeleft <= 0)
 				current_state = GAME_STATE_SETTING_UP
 	while (!setup())
@@ -362,7 +367,14 @@ var/global/datum/controller/gameticker/ticker
 				robolist += "[robo.name][robo.stat?" (Deactivated) (Played by: [robo.key]), ":" (Played by: [robo.key]), "]"
 			world << "[robolist]"
 
+	var/dronecount = 0
+
 	for (var/mob/living/silicon/robot/robo in mob_list)
+
+		if(istype(robo,/mob/living/silicon/robot/drone))
+			dronecount++
+			continue
+
 		if (!robo.connected_ai)
 			if (robo.stat != 2)
 				world << "<b>[robo.name] (Played by: [robo.key]) survived as an AI-less borg! Its laws were:</b>"
@@ -371,6 +383,9 @@ var/global/datum/controller/gameticker/ticker
 
 			if(robo) //How the hell do we lose robo between here and the world messages directly above this?
 				robo.laws.show_laws(world)
+
+	if(dronecount)
+		world << "<b>There [dronecount>1 ? "were" : "was"] [dronecount] industrious maintenance [dronecount>1 ? "drones" : "drone"] this round."
 
 	mode.declare_completion()//To declare normal completion.
 

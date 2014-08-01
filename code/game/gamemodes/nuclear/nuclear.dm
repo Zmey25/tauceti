@@ -5,8 +5,8 @@
 /datum/game_mode/nuclear
 	name = "nuclear emergency"
 	config_tag = "nuclear"
-	required_players = 1
-	required_players_secret = 25 // 25 players - 5 players to be the nuke ops = 20 players remaining
+	required_players = 15
+	required_players_secret = 25
 	required_enemies = 1
 	recommended_enemies = 5
 
@@ -63,6 +63,8 @@
 	for(var/datum/mind/synd_mind in syndicates)
 		synd_mind.assigned_role = "MODE" //So they aren't chosen for other jobs.
 		synd_mind.special_role = "Syndicate"//So they actually have a special role/N
+		log_game("[synd_mind.key] with age [synd_mind.current.client.player_age] has been selected as a nuclear operative")
+		message_admins("[synd_mind.key] with age [synd_mind.current.client.player_age] has been selected as a nuclear operative",0,1)
 	return 1
 
 
@@ -117,10 +119,11 @@
 /datum/game_mode/nuclear/post_setup()
 
 	var/list/turf/synd_spawn = list()
+	var/turf/synd_comm_spawn
 
 	for(var/obj/effect/landmark/A in landmarks_list) //Add commander spawn places first, really should only be one though.
 		if(A.name == "Syndicate-Commander")
-			synd_spawn += get_turf(A)
+			synd_comm_spawn = get_turf(A)
 			del(A)
 			continue
 
@@ -136,43 +139,39 @@
 	var/nuke_code = "[rand(10000, 99999)]"
 	var/leader_selected = 0
 	var/spawnpos = 1
-	var/max_age = 0
-	for(var/datum/mind/synd_mind in syndicates)
-		if(!isnum(synd_mind.current.client.player_age))
+//	var/max_age = 0
+/*	for(var/datum/mind/synd_mind in syndicates)
+		if(isnum(synd_mind.current.client.player_age))
 			if(max_age<synd_mind.current.client.player_age)
-				max_age = synd_mind.current.client.player_age
+				max_age = synd_mind.current.client.player_age */
 
 	for(var/datum/mind/synd_mind in syndicates)
-		if(spawnpos > synd_spawn.len)
-			spawnpos = 1
-		synd_mind.current.loc = synd_spawn[spawnpos]
-
+		log_debug("Starting cycle - Ckey:[synd_mind.key] - [synd_mind]")
+		synd_mind.current.faction = "syndicate"
 		synd_mind.current.real_name = "Gorlex Maradeurs Operative" // placeholder while we get their actual name
+		log_debug("Leader status [leader_selected]")
+		if(!leader_selected)
+			log_debug("Leader - [synd_mind]")
+			synd_mind.current.loc = synd_comm_spawn
+			prepare_syndicate_leader(synd_mind, nuke_code)
+			leader_selected = 1
+			greet_syndicate(synd_mind, 0, 1)
+			equip_syndicate(synd_mind.current, 1)
+
+		else
+			log_debug("[synd_mind] - not a leader")
+			greet_syndicate(synd_mind)
+			equip_syndicate(synd_mind.current)
+			if(spawnpos > synd_spawn.len)
+				spawnpos = 1
+			log_debug("[synd_mind] telepoting to [synd_spawn[spawnpos]]")
+			synd_mind.current.loc = synd_spawn[spawnpos]
+
 		spawn(0)
 			NukeNameAssign(synd_mind)
 
 		if(!config.objectives_disabled)
 			forge_syndicate_objectives(synd_mind)
-		greet_syndicate(synd_mind)
-		equip_syndicate(synd_mind.current)
-
-		if(!leader_selected)
-			if (max_age > 0)
-				if (max_age <= synd_mind.current.client.player_age)
-					prepare_syndicate_leader(synd_mind, nuke_code)
-					leader_selected = 1
-					greet_syndicate(synd_mind, 1, 1)
-					equip_syndicate(synd_mind.current, 1)
-			else
-				prepare_syndicate_leader(synd_mind, nuke_code)
-				leader_selected = 1
-				greet_syndicate(synd_mind, 1, 1)
-				equip_syndicate(synd_mind.current, 1)
-
-
-		else
-			greet_syndicate(synd_mind)
-			equip_syndicate(synd_mind.current)
 
 		spawnpos++
 		update_synd_icons_added(synd_mind)
@@ -181,7 +180,7 @@
 
 	if(uplinklocker)
 		new /obj/structure/closet/syndicate/nuclear(uplinklocker.loc)
-	if(nuke_spawn && synd_spawn.len > 0)
+	if(nuke_spawn)
 		var/obj/machinery/nuclearbomb/the_bomb = new /obj/machinery/nuclearbomb(nuke_spawn.loc)
 		the_bomb.r_code = nuke_code
 
@@ -212,6 +211,8 @@
 
 
 /datum/game_mode/proc/forge_syndicate_objectives(var/datum/mind/syndicate)
+	if (config.objectives_disabled)
+		return
 	var/datum/objective/nuclear/syndobj = new
 	syndobj.owner = syndicate
 	syndicate.objectives += syndobj
@@ -220,8 +221,8 @@
 /datum/game_mode/proc/greet_syndicate(var/datum/mind/syndicate, var/you_are=1, var/boss=0)
 	if (you_are)
 		syndicate.current << "\blue You are a Gorlex Maradeurs agent!"
-		if(boss)
-			syndicate.current <<"\blue You are the Gorlex Maradeurs Commander!"
+	if(boss)
+		syndicate.current << "\blue You are a Gorlex Maradeurs Commander!"
 	var/obj_count = 1
 
 	if(!config.objectives_disabled)
@@ -230,7 +231,6 @@
 			obj_count++
 	else
 		syndicate.current << "<font color=blue>Within the rules,</font> try to act as an opposing force to the crew. Further RP and try to make sure other players have </i>fun<i>! If you are confused or at a loss, always adminhelp, and before taking extreme actions, please try to also contact the administration! Think through your actions and make the roleplay immersive! <b>Please remember all rules aside from those without explicit exceptions apply to antagonists.</i></b>"
-		syndicate.current.faction = "syndicate"
 	return
 
 
@@ -276,9 +276,9 @@
 //		synd_mob.equip_to_slot_or_del(new /obj/item/clothing/suit/space/rig/syndi/human(synd_mob), slot_wear_suit)
 //		synd_mob.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/space/rig/syndi/human(synd_mob), slot_head)
 
-	var/obj/item/weapon/implant/explosive/E = new/obj/item/weapon/implant/explosive(synd_mob)
-	E.imp_in = synd_mob
-	E.implanted = 1
+//	var/obj/item/weapon/implant/explosive/E = new/obj/item/weapon/implant/explosive(synd_mob)
+//	E.imp_in = synd_mob
+//	E.implanted = 1
 	synd_mob.update_icons()
 	return 1
 

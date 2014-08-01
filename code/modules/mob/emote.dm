@@ -10,9 +10,9 @@
 
 	var/input
 	if(!message)
-		input = copytext(sanitize(input(src,"Choose an emote to display.") as text|null),1,MAX_MESSAGE_LEN)
+		input = sanitize(copytext(input(src,"Choose an emote to display.") as text|null,1,MAX_MESSAGE_LEN))
 	else
-		input = message
+		input = sanitize_plus_chat(message)
 	if(input)
 		message = "<B>[src]</B> [input]"
 	else
@@ -39,12 +39,30 @@
 		// Type 1 (Visual) emotes are sent to anyone in view of the item
 		if (m_type & 1)
 			for (var/mob/O in viewers(src, null))
+
+				if(O.status_flags & PASSEMOTES)
+
+					for(var/obj/item/weapon/holder/H in O.contents)
+						H.show_message(message, m_type)
+
+					for(var/mob/living/M in O.contents)
+						M.show_message(message, m_type)
+
 				O.show_message(message, m_type)
 
 		// Type 2 (Audible) emotes are sent to anyone in hear range
 		// of the *LOCATION* -- this is important for pAIs to be heard
 		else if (m_type & 2)
 			for (var/mob/O in hearers(get_turf(src), null))
+
+				if(O.status_flags & PASSEMOTES)
+
+					for(var/obj/item/weapon/holder/H in O.contents)
+						H.show_message(message, m_type)
+
+					for(var/mob/living/M in O.contents)
+						M.show_message(message, m_type)
+
 				O.show_message(message, m_type)
 
 /mob/proc/emote_dead(var/message)
@@ -65,9 +83,9 @@
 
 	var/input
 	if(!message)
-		input = copytext(sanitize(input(src, "Choose an emote to display.") as text|null), 1, MAX_MESSAGE_LEN)
+		input = sanitize(copytext(input(src, "Choose an emote to display.") as text|null, 1, MAX_MESSAGE_LEN))
 	else
-		input = message
+		input = sanitize_plus_chat(message)
 
 	if(input)
 		message = "<span class='game deadsay'><span class='prefix'>DEAD:</span> <span class='name'>[src]</span> <span class='message'>[message]</span></span>"

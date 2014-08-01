@@ -36,7 +36,11 @@
 		/mob/living/simple_animal/cow,
 		/mob/living/simple_animal/hostile/retaliate/goat,
 		/obj/machinery/computer/centrifuge,
-		/obj/machinery/sleeper	)
+		/obj/machinery/sleeper,
+		/obj/machinery/smartfridge/,
+		/obj/machinery/biogenerator,
+		/obj/machinery/hydroponics,
+		/obj/machinery/constructable_frame)
 
 	New()
 		..()
@@ -121,6 +125,9 @@
 		else if(istype(target, /obj/machinery/bunsen_burner))
 			return
 
+		else if(istype(target, /obj/machinery/smartfridge))
+			return
+
 		else if(istype(target, /obj/machinery/radiocarbon_spectrometer))
 			return
 
@@ -135,7 +142,7 @@
 
 	attackby(obj/item/weapon/W as obj, mob/user as mob)
 		if(istype(W, /obj/item/weapon/pen) || istype(W, /obj/item/device/flashlight/pen))
-			var/tmp_label = sanitize(input(user, "Enter a label for [src.name]","Label",src.label_text))
+			var/tmp_label = sanitize(copytext(input(user, "Enter a label for [src.name]","Label",src.label_text), 1, MAX_NAME_LEN))
 			if(length(tmp_label) > 10)
 				user << "\red The label can be at most 10 characters long."
 			else
@@ -287,6 +294,14 @@
 					M.show_message("\red [src] is shaped into [BBucket] by [user.name] with the weldingtool.", 3, "\red You hear welding.", 2)
 				del(src)
 			return
+
+	update_icon()
+		overlays.Cut()
+
+		if (!is_open_container())
+			var/image/lid = image(icon, src, "lid_[initial(icon_state)]")
+			overlays += lid
+
 // vials are defined twice, what?
 /*
 /obj/item/weapon/reagent_containers/glass/beaker/vial

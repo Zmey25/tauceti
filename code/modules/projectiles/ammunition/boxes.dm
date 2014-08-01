@@ -185,3 +185,5 @@
 	origin_tech = "combat=2"
 	ammo_type = /obj/item/ammo_casing/a12mm
 	max_ammo = 30
+	multiple_sprites = 1
+

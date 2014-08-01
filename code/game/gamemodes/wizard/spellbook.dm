@@ -5,7 +5,7 @@
 	icon_state ="book"
 	throw_speed = 1
 	throw_range = 5
-	w_class = 1.0
+	w_class = 2.0
 	flags = FPRINT | TABLEPASS
 	var/uses = 5
 	var/temp = null
@@ -47,8 +47,8 @@
 		dat += "<HR>"
 		dat += "<A href='byond://?src=\ref[src];spell_choice=staffchange'>Staff of Change</A><BR>"
 		dat += "<HR>"
-		dat += "<A href='byond://?src=\ref[src];spell_choice=mentalfocus'>Mental Focus</A><BR>"
-		dat += "<HR>"
+	//	dat += "<A href='byond://?src=\ref[src];spell_choice=mentalfocus'>Mental Focus</A><BR>"
+//		dat += "<HR>"
 		dat += "<A href='byond://?src=\ref[src];spell_choice=soulstone'>Six Soul Stone Shards and the spell Artificer</A><BR>"
 		dat += "<HR>"
 		dat += "<A href='byond://?src=\ref[src];spell_choice=armor'>Mastercrafted Armor Set</A><BR>"

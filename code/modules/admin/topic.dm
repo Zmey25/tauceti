@@ -591,7 +591,7 @@
 		else
 			jobs += "<td width='20%'><a href='?src=\ref[src];jobban3=AntagHUD;jobban4=\ref[M]'>AntagHUD</a></td>"
 
-
+/*
 	//Clown&Mime
 		counter = 0
 		jobs += "<table cellpadding='1' cellspacing='0' width='100%'>"
@@ -611,7 +611,7 @@
 			if(counter >= 5) //So things dont get squiiiiished!
 				jobs += "</tr><tr align='center'>"
 				counter = 0
-		jobs += "</tr></table>"
+		jobs += "</tr></table>" */
 
 	//Antagonist (Orange)
 		var/isbanned_dept = jobban_isbanned(M, "Syndicate")
@@ -769,12 +769,12 @@
 					var/datum/job/temp = job_master.GetJob(jobPos)
 					if(!temp) continue
 					joblist += temp.title
-			if("entertaimentdept")
+/*			if("entertaimentdept")
 				for(var/jobPos in entertaiment_positions)
 					if(!jobPos)	continue
 					var/datum/job/temp = job_master.GetJob(jobPos)
 					if(!temp) continue
-					joblist += temp.title
+					joblist += temp.title */
 			if("nonhumandept")
 				joblist += "pAI"
 				for(var/jobPos in nonhuman_positions)
@@ -1373,7 +1373,7 @@
 		show_player_panel(M)
 
 	else if(href_list["adminplayerobservejump"])
-		if(!check_rights(R_MOD,0) && !check_rights(R_ADMIN))	return
+		if(!check_rights(R_MENTOR|R_MOD|R_ADMIN))	return
 
 		var/mob/M = locate(href_list["adminplayerobservejump"])
 
@@ -1526,7 +1526,7 @@
 			usr << "The person you are trying to contact is not wearing a headset"
 			return
 
-		var/input = input(src.owner, "Please enter a message to reply to [key_name(H)] via their headset.","Outgoing message from Centcomm", "")
+		var/input = sanitize(input(src.owner, "Please enter a message to reply to [key_name(H)] via their headset.","Outgoing message from Centcomm", ""))
 		if(!input)	return
 
 		src.owner << "You sent [input] to [H] via a secure channel."
@@ -1558,10 +1558,10 @@
 	else if(href_list["CentcommFaxReply"])
 		var/mob/living/carbon/human/H = locate(href_list["CentcommFaxReply"])
 
-		var/input = sanitize_u(input(src.owner, "Please enter a message to reply to [key_name(H)] via secure connection. NOTE: BBCode does not work, but HTML tags do! Use <br> for line breaks.", "Outgoing message from Centcomm", "") as message|null)
+		var/input = sanitize_alt(input(src.owner, "Please enter a message to reply to [key_name(H)] via secure connection. NOTE: BBCode does not work, but HTML tags do! Use <br> for line breaks.", "Outgoing message from Centcomm", "") as message|null)
 		if(!input)	return
 
-		var/customname = sanitize_u(input(src.owner, "Pick a title for the report", "Title") as text|null)
+		var/customname = sanitize_alt(input(src.owner, "Pick a title for the report", "Title") as text|null)
 
 		for(var/obj/machinery/faxmachine/F in machines)
 			if(! (F.stat & (BROKEN|NOPOWER) ) )
@@ -1967,7 +1967,7 @@
 				if(!ticker)
 					alert("The game hasn't started yet!")
 					return
-				var/objective = copytext(sanitize(input("Enter an objective")),1,MAX_MESSAGE_LEN)
+				var/objective = sanitize(copytext(input("Enter an objective"),1,MAX_MESSAGE_LEN))
 				if(!objective)
 					return
 				feedback_inc("admin_secrets_fun_used",1)
@@ -2492,7 +2492,7 @@
 		src.access_news_network()
 
 	else if(href_list["ac_set_channel_name"])
-		src.admincaster_feed_channel.channel_name = strip_html_simple(input(usr, "Provide a Feed Channel Name", "Network Channel Handler", ""))
+		src.admincaster_feed_channel.channel_name = sanitize_alt(input(usr, "Provide a Feed Channel Name", "Network Channel Handler", ""))
 		while (findtext(src.admincaster_feed_channel.channel_name," ") == 1)
 			src.admincaster_feed_channel.channel_name = copytext(src.admincaster_feed_channel.channel_name,2,lentext(src.admincaster_feed_channel.channel_name)+1)
 		src.access_news_network()
@@ -2527,11 +2527,11 @@
 		var/list/available_channels = list()
 		for(var/datum/feed_channel/F in news_network.network_channels)
 			available_channels += F.channel_name
-		src.admincaster_feed_channel.channel_name = adminscrub(input(usr, "Choose receiving Feed Channel", "Network Channel Handler") in available_channels )
+		src.admincaster_feed_channel.channel_name = input(usr, "Choose receiving Feed Channel", "Network Channel Handler") in available_channels
 		src.access_news_network()
 
 	else if(href_list["ac_set_new_message"])
-		src.admincaster_feed_message.body = adminscrub(input(usr, "Write your Feed story", "Network Channel Handler", ""))
+		src.admincaster_feed_message.body = sanitize_alt(input(usr, "Write your Feed story", "Network Channel Handler", ""))
 		while (findtext(src.admincaster_feed_message.body," ") == 1)
 			src.admincaster_feed_message.body = copytext(src.admincaster_feed_message.body,2,lentext(src.admincaster_feed_message.body)+1)
 		src.access_news_network()
@@ -2585,13 +2585,13 @@
 		src.access_news_network()
 
 	else if(href_list["ac_set_wanted_name"])
-		src.admincaster_feed_message.author = adminscrub(input(usr, "Provide the name of the Wanted person", "Network Security Handler", ""))
+		src.admincaster_feed_message.author = sanitize_alt(input(usr, "Provide the name of the Wanted person", "Network Security Handler", ""))
 		while (findtext(src.admincaster_feed_message.author," ") == 1)
 			src.admincaster_feed_message.author = copytext(admincaster_feed_message.author,2,lentext(admincaster_feed_message.author)+1)
 		src.access_news_network()
 
 	else if(href_list["ac_set_wanted_desc"])
-		src.admincaster_feed_message.body = adminscrub(input(usr, "Provide the a description of the Wanted person and any other details you deem important", "Network Security Handler", ""))
+		src.admincaster_feed_message.body = sanitize_alt(input(usr, "Provide the a description of the Wanted person and any other details you deem important", "Network Security Handler", ""))
 		while (findtext(src.admincaster_feed_message.body," ") == 1)
 			src.admincaster_feed_message.body = copytext(src.admincaster_feed_message.body,2,lentext(src.admincaster_feed_message.body)+1)
 		src.access_news_network()
@@ -2698,7 +2698,7 @@
 		src.access_news_network()
 
 	else if(href_list["ac_set_signature"])
-		src.admincaster_signature = adminscrub(input(usr, "Provide your desired signature", "Network Identity Handler", ""))
+		src.admincaster_signature = sanitize_alt(input(usr, "Provide your desired signature", "Network Identity Handler", ""))
 		src.access_news_network()
 
 	else if(href_list["populate_inactive_customitems"])
@@ -2709,7 +2709,7 @@
 		if(check_rights(R_ADMIN|R_SERVER))
 			if(href_list["vsc"] == "airflow")
 				vsc.ChangeSettingsDialog(usr,vsc.settings)
-			if(href_list["vsc"] == "plasma")
+			if(href_list["vsc"] == "phoron")
 				vsc.ChangeSettingsDialog(usr,vsc.plc.settings)
 			if(href_list["vsc"] == "default")
 				vsc.SetDefault(usr)

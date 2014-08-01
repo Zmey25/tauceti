@@ -77,12 +77,12 @@
 
 		user << "You inject the solution into the power cell."
 
-		if(S.reagents.has_reagent("plasma", 5))
+		if(S.reagents.has_reagent("phoron", 5))
 
 			rigged = 1
 
-			log_admin("LOG: [user.name] ([user.ckey]) injected a power cell with plasma, rigging it to explode.")
-			message_admins("LOG: [user.name] ([user.ckey]) injected a power cell with plasma, rigging it to explode.")
+			log_admin("LOG: [user.name] ([user.ckey]) injected a power cell with phoron, rigging it to explode.")
+			message_admins("LOG: [user.name] ([user.ckey]) injected a power cell with phoron, rigging it to explode.")
 
 		S.reagents.clear_reagents()
 
@@ -98,8 +98,8 @@
 	if (charge==0)
 		return
 	var/devastation_range = -1 //round(charge/11000)
-	var/heavy_impact_range = round(sqrt(charge)/60)
-	var/light_impact_range = round(sqrt(charge)/30)
+	var/heavy_impact_range = round(sqrt(charge)/58)
+	var/light_impact_range = round(sqrt(charge)/27)
 	var/flash_range = light_impact_range
 	if (light_impact_range==0)
 		rigged = 0

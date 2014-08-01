@@ -52,7 +52,7 @@ emp_act
 				return -1 // complete projectile permutation
 
 	if(check_shields(P.damage, "the [P.name]"))
-		P.on_hit(src, 2)
+		P.on_hit(src, 2, def_zone)
 		return 2
 
 //BEGIN BOOK'S TASER NERF.
@@ -97,6 +97,29 @@ emp_act
 
 		return
 //END TASER NERF
+	if(istype(P, /obj/item/projectile/energy/bolt))
+		var/datum/organ/external/select_area = get_organ(def_zone) // We're checking the outside, buddy!
+		var/list/body_parts = list(head, wear_mask, wear_suit, w_uniform, gloves, shoes) // What all are we checking?
+		for(var/bp in body_parts) //Make an unregulated var to pass around.
+			if(!bp)
+				continue //Does this thing we're shooting even exist?
+			if(bp && istype(bp ,/obj/item/clothing)) // If it exists, and it's clothed
+				var/obj/item/clothing/C = bp // Then call an argument C to be that clothing!
+				if(C.body_parts_covered & select_area.body_part) // Is that body part being targeted covered?
+					if(C.flags & THICKMATERIAL )
+						visible_message("\red <B>The [P.name] gets absorbed by [src]'s [C.name]!</B>")
+						del P
+						return
+
+		var/datum/organ/external/organ = get_organ(check_zone(def_zone))
+		var/armorblock = run_armor_check(organ, "energy")
+		apply_damage(P.damage, P.damage_type, organ, armorblock, P, 0, 0)
+		apply_effects(P.stun,P.weaken,0,0,P.stutter,0,0,armorblock)
+		flash_pain()
+		src <<"\red You have been shot!"
+		del P
+		return
+//Конец ребаланса арбалета синди
 
 	var/datum/organ/external/organ = get_organ(check_zone(def_zone))
 
@@ -242,7 +265,7 @@ emp_act
 	if(armor >= 2)	return 0
 	if(!I.force)	return 0
 
-	apply_damage(I.force, I.damtype, affecting, armor , is_sharp(I), I)
+	apply_damage(I.force, I.damtype, affecting, armor , is_sharp(I), has_edge(I), I)
 
 	var/bloody = 0
 	if(((I.damtype == BRUTE) || (I.damtype == HALLOSS)) && prob(25 + (I.force * 2)))

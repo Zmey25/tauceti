@@ -69,6 +69,8 @@
 /obj/item/clothing/suit/johnny_coat
 	name = "johnny~~ coat"
 	desc = "Johnny~~"
+	icon = 'tauceti/items/clothing/suits/suits.dmi'
+	tc_custom = 'tauceti/items/clothing/suits/suits.dmi'
 	icon_state = "johnny"
 	item_state = "johnny"
 	flags = FPRINT | TABLEPASS
@@ -187,7 +189,7 @@
 	icon_state = "straight_jacket"
 	item_state = "straight_jacket"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS|HANDS
-	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
+	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT|HIDETAIL
 
 /obj/item/clothing/suit/ianshirt
 	name = "worn shirt"

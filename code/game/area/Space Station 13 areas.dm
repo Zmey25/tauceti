@@ -14,6 +14,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 */
 
 
+
 /area
 	var/fire = null
 	var/atmos = 1
@@ -31,6 +32,8 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 
 	var/eject = null
 
+	var/debug = 0
+	var/powerupdate = 10		//We give everything 10 ticks to settle out it's power usage.
 	var/requires_power = 1
 	var/always_unpowered = 0	//this gets overriden to 1 for space in area/New()
 
@@ -43,7 +46,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	var/used_environ = 0
 
 	var/has_gravity = 1
-
+	var/list/apc = list()
 	var/no_air = null
 	var/area/master				// master area used for power calcluations
 								// (original area before splitting due to sd_DAL)
@@ -866,7 +869,7 @@ var/list/ghostteleportlocs = list()
 	icon_state = "chapeloffice"
 
 /area/lawoffice
-	name = "\improper Law Office"
+	name = "\improper Internal Affairs"
 	icon_state = "law"
 
 
@@ -942,6 +945,11 @@ var/list/ghostteleportlocs = list()
 //Engineering
 
 /area/engine
+
+	drone_fabrication
+		name = "\improper Drone Fabrication"
+		icon_state = "engine"
+
 	engine_smes
 		name = "Engineering SMES"
 		icon_state = "engine_smes"
@@ -963,6 +971,10 @@ var/list/ghostteleportlocs = list()
 		name = "\improper Engineering Monitoring Room"
 		icon_state = "engine_monitoring"
 
+	atmos_monitoring
+		name = "\improper Atmospherics Monitoring Room"
+		icon_state = "engine_monitoring"
+
 	engineering
 		name = "Engineering"
 		icon_state = "engine_smes"
@@ -982,6 +994,18 @@ var/list/ghostteleportlocs = list()
 	hallway
 		name = "\improper Engineering Hallway"
 		icon_state = "engine_hallway"
+
+	engine_hallway
+		name = "\improper Engine Room Hallway"
+		icon_state = "engine_hallway"
+
+	engine_eva
+		name = "\improper Engine EVA"
+		icon_state = "engine_eva"
+
+	engine_eva_maintenance
+		name = "\improper Engine EVA Maintenance"
+		icon_state = "engine_eva"
 
 	workshop
 		name = "\improper Engineering Workshop"
@@ -1094,7 +1118,6 @@ var/list/ghostteleportlocs = list()
 	icon_state = "medbay3"
 	music = 'sound/ambience/signal.ogg'
 
-
 /area/medical/biostorage
 	name = "\improper Secondary Storage"
 	icon_state = "medbay2"
@@ -1120,7 +1143,7 @@ var/list/ghostteleportlocs = list()
 	icon_state = "patients"
 
 /area/medical/ward
-	name = "\improper Medbay Patient Ward"
+	name = "\improper Recovery Ward"
 	icon_state = "patients"
 
 /area/medical/patient_a
@@ -1135,8 +1158,8 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Isolation C"
 	icon_state = "patients"
 
-/area/medical/iso_access
-	name = "\improper Isolation Access"
+/area/medical/patient_wing
+	name = "\improper Patient Wing"
 	icon_state = "patients"
 
 /area/medical/cmo
@@ -1159,6 +1182,10 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Virology"
 	icon_state = "virology"
 
+/area/medical/virologyaccess
+	name = "\improper Virology Access"
+	icon_state = "virology"
+
 /area/medical/morgue
 	name = "\improper Morgue"
 	icon_state = "morgue"
@@ -1168,11 +1195,19 @@ var/list/ghostteleportlocs = list()
 	icon_state = "chem"
 
 /area/medical/surgery
-	name = "\improper Surgery"
+	name = "\improper Operating Theatre 1"
+	icon_state = "surgery"
+
+/area/medical/surgery2
+	name = "\improper Operating Theatre 2"
 	icon_state = "surgery"
 
 /area/medical/surgeryobs
-	name = "\improper Surgery Observation"
+	name = "\improper Operation Observation Room"
+	icon_state = "surgery"
+
+/area/medical/surgeryprep
+	name = "\improper Pre-Op Prep Room"
 	icon_state = "surgery"
 
 /area/medical/cryo
@@ -1192,7 +1227,7 @@ var/list/ghostteleportlocs = list()
 	icon_state = "cloning"
 
 /area/medical/sleeper
-	name = "\improper Medical Treatment Center"
+	name = "\improper Emergency Treatment Centre"
 	icon_state = "exam_room"
 
 //Security
@@ -1232,6 +1267,11 @@ var/list/ghostteleportlocs = list()
 /area/security/range
 	name = "\improper Firing Range"
 	icon_state = "firingrange"
+
+/area/security/tactical
+	name = "\improper Tactical Equipment"
+	icon_state = "Tactical"
+
 
 /*
 	New()
@@ -1330,45 +1370,45 @@ var/list/ghostteleportlocs = list()
 	name = "Hydroponics"
 	icon_state = "hydro"
 
-//Toxins
+//rnd (Research and Development
 
-/area/toxins/lab
+/area/rnd/lab
 	name = "\improper Research and Development"
 	icon_state = "toxlab"
 
-/area/toxins/hallway
+/area/rnd/hallway
 	name = "\improper Research Lab"
 	icon_state = "toxlab"
 
-/area/toxins/rdoffice
+/area/rnd/rdoffice
 	name = "\improper Research Director's Office"
 	icon_state = "head_quarters"
 
-/area/toxins/supermatter
+/area/rnd/supermatter
 	name = "\improper Supermatter Lab"
 	icon_state = "toxlab"
 
-/area/toxins/xenobiology
+/area/rnd/xenobiology
 	name = "\improper Xenobiology Lab"
 	icon_state = "toxlab"
 
-/area/toxins/storage
+/area/rnd/storage
 	name = "\improper Toxins Storage"
 	icon_state = "toxstorage"
 
-/area/toxins/test_area
+/area/rnd/test_area
 	name = "\improper Toxins Test Area"
 	icon_state = "toxtest"
 
-/area/toxins/mixing
+/area/rnd/mixing
 	name = "\improper Toxins Mixing Room"
 	icon_state = "toxmix"
 
-/area/toxins/misc_lab
+/area/rnd/misc_lab
 	name = "\improper Miscellaneous Research"
 	icon_state = "toxmisc"
 
-/area/toxins/telesci
+/area/rnd/telesci
 	name = "\improper Telescience Lab"
 	icon_state = "toxmisc"
 
@@ -1580,6 +1620,10 @@ var/list/ghostteleportlocs = list()
 /area/turret_protected/ai_upload_foyer
 	name = "AI Upload Access"
 	icon_state = "ai_foyer"
+
+/area/turret_protected/ai_server_room
+	name = "AI Server Room"
+	icon_state = "ai_server"
 
 /area/turret_protected/ai
 	name = "\improper AI Chamber"
@@ -1884,7 +1928,7 @@ var/list/the_station_areas = list (
 	/area/quartermaster,
 	/area/janitor,
 	/area/hydroponics,
-	/area/toxins,
+	/area/rnd,
 	/area/storage,
 	/area/construction,
 	/area/ai_monitored/storage/eva, //do not try to simplify to "/area/ai_monitored" --rastaf0

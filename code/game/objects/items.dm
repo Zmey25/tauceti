@@ -210,6 +210,7 @@
 /obj/item/proc/moved(mob/user as mob, old_loc as turf)
 	return
 
+// apparently called whenever an item is removed from a slot, container, or anything else.
 /obj/item/proc/dropped(mob/user as mob)
 	..()
 
@@ -320,22 +321,22 @@
 			if(slot_l_ear)
 				if(H.l_ear)
 					return 0
+				if( w_class < 2	)
+					return 1
 				if( !(slot_flags & SLOT_EARS) )
 					return 0
 				if( (slot_flags & SLOT_TWOEARS) && H.r_ear )
 					return 0
-				if( w_class < 2	)
-					return 1
 				return 1
 			if(slot_r_ear)
 				if(H.r_ear)
 					return 0
+				if( w_class < 2 )
+					return 1
 				if( !(slot_flags & SLOT_EARS) )
 					return 0
 				if( (slot_flags & SLOT_TWOEARS) && H.l_ear )
 					return 0
-				if( w_class < 2 )
-					return 1
 				return 1
 			if(slot_w_uniform)
 				if(H.w_uniform)

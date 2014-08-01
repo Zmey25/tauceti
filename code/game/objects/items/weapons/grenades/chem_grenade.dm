@@ -161,6 +161,10 @@
 				if( A == src ) continue
 				src.reagents.reaction(A, 1, 10)
 
+		if(istype(loc, /mob/living/carbon))		//drop dat grenade if it goes off in your hand
+			var/mob/living/carbon/C = loc
+			C.drop_from_inventory(src)
+			C.throw_mode_off()
 
 		invisibility = INVISIBILITY_MAXIMUM //Why am i doing this?
 		spawn(50)		   //To make sure all reagents can work
@@ -216,7 +220,7 @@
 
 		B1.reagents.add_reagent("aluminum", 15)
 		B1.reagents.add_reagent("fuel",20)
-		B2.reagents.add_reagent("plasma", 15)
+		B2.reagents.add_reagent("phoron", 15)
 		B2.reagents.add_reagent("sacid", 15)
 		B1.reagents.add_reagent("fuel",20)
 

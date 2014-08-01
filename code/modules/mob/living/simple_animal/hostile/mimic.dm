@@ -41,7 +41,7 @@
 	if(.)
 		emote("growls at [.]")
 
-/mob/living/simple_animal/hostile/mimic/Die()
+/mob/living/simple_animal/hostile/mimic/death()
 	..()
 	visible_message("\red <b>[src]</b> stops moving!")
 	del(src)
@@ -107,7 +107,7 @@
 	..()
 	icon_state = initial(icon_state)
 
-/mob/living/simple_animal/hostile/mimic/crate/Die()
+/mob/living/simple_animal/hostile/mimic/crate/death()
 
 	var/obj/structure/closet/crate/C = new(get_turf(src))
 	// Put loot in crate
@@ -127,7 +127,7 @@
 // Copy Mimic
 //
 
-var/global/list/protected_objects = list(/obj/structure/table, /obj/structure/cable, /obj/structure/window)
+var/global/list/protected_objects = list(/obj/structure/table, /obj/structure/cable, /obj/structure/window, /obj/item/projectile/magic/animate)
 
 /mob/living/simple_animal/hostile/mimic/copy
 
@@ -141,7 +141,7 @@ var/global/list/protected_objects = list(/obj/structure/table, /obj/structure/ca
 	..(loc)
 	CopyObject(copy, creator)
 
-/mob/living/simple_animal/hostile/mimic/copy/Die()
+/mob/living/simple_animal/hostile/mimic/copy/death()
 
 	for(var/atom/movable/M in src)
 		M.loc = get_turf(src)
@@ -196,3 +196,9 @@ var/global/list/protected_objects = list(/obj/structure/table, /obj/structure/ca
 			if(prob(15))
 				L.Weaken(1)
 				L.visible_message("<span class='danger'>\the [src] knocks down \the [L]!</span>")
+
+/mob/living/simple_animal/hostile/mimic/copy/proc/ChangeOwner(var/mob/owner)
+	if(owner != creator)
+		LoseTarget()
+		creator = owner
+		faction = "\ref[owner]"

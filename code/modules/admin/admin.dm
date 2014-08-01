@@ -80,7 +80,7 @@ var/global/floorIsLava = 0
 		<A href='?src=\ref[src];getmob=\ref[M]'>Get</A> |
 		<A href='?src=\ref[src];sendmob=\ref[M]'>Send To</A>
 		<br><br>
-		<A href='?src=\ref[src];traitor=\ref[M]'>Traitor panel</A> |
+		[check_rights(R_ADMIN|R_MOD,0) ? "<A href='?src=\ref[src];traitor=\ref[M]'>Traitor panel</A> | " : "" ]
 		<A href='?src=\ref[src];narrateto=\ref[M]'>Narrate to</A> |
 		<A href='?src=\ref[src];subtlemessage=\ref[M]'>Subtle message</A>
 	"}
@@ -283,7 +283,7 @@ var/global/floorIsLava = 0
 				I.rank = "N/A"
 				update_file = 1
 			dat += "<font color=#008800>[I.content]</font> <i>by [I.author] ([I.rank])</i> on <i><font color=blue>[I.timestamp]</i></font> "
-			if(I.author == usr.key)
+			if(I.author == usr.key || I.author == "Adminbot")
 				dat += "<A href='?src=\ref[src];remove_player_info=[key];remove_index=[i]'>Remove</A>"
 			dat += "<br><br>"
 		if(update_file) info << infos
@@ -571,7 +571,7 @@ var/global/floorIsLava = 0
 		<A href='?src=\ref[src];create_turf=1'>Create Turf</A><br>
 		<A href='?src=\ref[src];create_mob=1'>Create Mob</A><br>
 		<br><A href='?src=\ref[src];vsc=airflow'>Edit Airflow Settings</A><br>
-		<A href='?src=\ref[src];vsc=plasma'>Edit Plasma Settings</A><br>
+		<A href='?src=\ref[src];vsc=phoron'>Edit Phoron Settings</A><br>
 		<A href='?src=\ref[src];vsc=default'>Choose a default ZAS setting</A><br>
 		"}
 
@@ -719,7 +719,7 @@ var/global/floorIsLava = 0
 	if(!check_rights(0))	return
 
 	var/message = input("Global message to send:", "Admin Announce", null, null)  as message
-	message = sanitize(message, list("ÿ"="____255_"))
+	message = sanitize(message, list("ÿ"=LETTER_255))
 
 	if(message)
 		if(!check_rights(R_SERVER,0))
@@ -976,7 +976,7 @@ var/global/floorIsLava = 0
 /datum/admins/proc/get_sab_desc(var/target)
 	switch(target)
 		if(1)
-			return "Destroy at least 70% of the plasma canisters on the station"
+			return "Destroy at least 70% of the phoron canisters on the station"
 		if(2)
 			return "Destroy the AI"
 		if(3)
@@ -1113,6 +1113,45 @@ var/global/floorIsLava = 0
 
 	if(istype(H))
 		H.regenerate_icons()
+
+
+/*
+	helper proc to test if someone is a mentor or not.  Got tired of writing this same check all over the place.
+*/
+/proc/is_mentor(client/C)
+
+	if(!istype(C))
+		return 0
+	if(!C.holder)
+		return 0
+
+	if(C.holder.rights == R_MENTOR)
+		return 1
+	return 0
+
+/proc/get_options_bar(whom, detail = 2, name = 0, link = 1)
+	if(!whom)
+		return "<b>(*null*)</b>"
+	var/mob/M
+	var/client/C
+	if(istype(whom, /client))
+		C = whom
+		M = C.mob
+	else if(istype(whom, /mob))
+		M = whom
+		C = M.client
+	else
+		return "<b>(*not an mob*)</b>"
+	switch(detail)
+		if(0)
+			return "<b>[key_name(C, link, name)]</b>"
+		if(1)
+			return "<b>[key_name(C, link, name)](<A HREF='?_src_=holder;adminmoreinfo=\ref[M]'>?</A>)</b>"
+		if(2)
+			var/ref_mob = "\ref[M]"
+			return "<b>[key_name(C, link, name)](<A HREF='?_src_=holder;adminmoreinfo=[ref_mob]'>?</A>) (<A HREF='?_src_=holder;adminplayeropts=[ref_mob]'>PP</A>) (<A HREF='?_src_=vars;Vars=[ref_mob]'>VV</A>) (<A HREF='?_src_=holder;subtlemessage=[ref_mob]'>SM</A>) (<A HREF='?_src_=holder;adminplayerobservejump=[ref_mob]'>JMP</A>) (<A HREF='?_src_=holder;check_antagonist=1'>CA</A>)</b>"
+
+
 
 //
 //

@@ -110,7 +110,7 @@ proc/SetupXenoarch()
 
 /obj/structure/closet/secure_closet/xenoarchaeologist
 	name = "Xenoarchaeologist Locker"
-	req_access = list(access_tox_storage)
+	req_access = list(access_xenoarch)
 	icon_state = "secureres1"
 	icon_closed = "secureres"
 	icon_locked = "secureres1"
@@ -142,6 +142,7 @@ proc/SetupXenoarch()
 		new /obj/item/weapon/storage/belt/archaeology(src)
 		new /obj/item/weapon/storage/box/excavation(src)
 		new /obj/item/device/flashlight/lantern(src)
+		new /obj/item/device/ano_scanner(src)
 		new /obj/item/device/depth_scanner(src)
 		new /obj/item/device/core_sampler(src)
 		new /obj/item/device/gps(src)

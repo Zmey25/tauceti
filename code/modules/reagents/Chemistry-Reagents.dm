@@ -35,31 +35,32 @@ datum
 				var/datum/reagent/self = src
 				src = null										  //of the reagent to the mob on TOUCHING it.
 
-				if(!istype(self.holder.my_atom, /obj/effect/effect/smoke/chem))
-					// If the chemicals are in a smoke cloud, do not try to let the chemicals "penetrate" into the mob's system (balance station 13) -- Doohl
+				if(self.holder)		//for catching rare runtimes
+					if(!istype(self.holder.my_atom, /obj/effect/effect/smoke/chem))
+						// If the chemicals are in a smoke cloud, do not try to let the chemicals "penetrate" into the mob's system (balance station 13) -- Doohl
 
-					if(method == TOUCH)
+						if(method == TOUCH)
 
-						var/chance = 1
-						var/block  = 0
+							var/chance = 1
+							var/block  = 0
 
-						for(var/obj/item/clothing/C in M.get_equipped_items())
-							if(C.permeability_coefficient < chance) chance = C.permeability_coefficient
-							if(istype(C, /obj/item/clothing/suit/bio_suit))
-								// bio suits are just about completely fool-proof - Doohl
-								// kind of a hacky way of making bio suits more resistant to chemicals but w/e
-								if(prob(75))
-									block = 1
+							for(var/obj/item/clothing/C in M.get_equipped_items())
+								if(C.permeability_coefficient < chance) chance = C.permeability_coefficient
+								if(istype(C, /obj/item/clothing/suit/bio_suit))
+									// bio suits are just about completely fool-proof - Doohl
+									// kind of a hacky way of making bio suits more resistant to chemicals but w/e
+									if(prob(75))
+										block = 1
 
-							if(istype(C, /obj/item/clothing/head/bio_hood))
-								if(prob(75))
-									block = 1
+								if(istype(C, /obj/item/clothing/head/bio_hood))
+									if(prob(75))
+										block = 1
 
-						chance = chance * 100
+							chance = chance * 100
 
-						if(prob(chance) && !block)
-							if(M.reagents)
-								M.reagents.add_reagent(self.id,self.volume/2)
+							if(prob(chance) && !block)
+								if(M.reagents)
+									M.reagents.add_reagent(self.id,self.volume/2)
 				return 1
 
 			reaction_obj(var/obj/O, var/volume) //By default we transfer a small part of the reagent to the object
@@ -117,10 +118,15 @@ datum
 						else //injected
 							M.contract_disease(D, 1, 0)
 				if(self.data && self.data["virus2"] && istype(M, /mob/living/carbon))//infecting...
-					if(method == TOUCH)
-						infect_virus2(M,self.data["virus2"])
-					else
-						infect_virus2(M,self.data["virus2"],1) //injected, force infection!
+					var/list/vlist = self.data["virus2"]
+					if (vlist.len)
+						for (var/ID in vlist)
+							var/datum/disease2/disease/V = vlist[ID]
+
+							if(method == TOUCH)
+								infect_virus2(M,V.getcopy())
+							else
+								infect_virus2(M,V.getcopy(),1) //injected, force infection!
 				if(self.data && self.data["antibodies"] && istype(M, /mob/living/carbon))//... and curing
 					var/mob/living/carbon/C = M
 					C.antibodies |= self.data["antibodies"]
@@ -144,6 +150,9 @@ datum
 						var/datum/disease/newVirus = D.Copy(1)
 						blood_prop.viruses += newVirus
 						newVirus.holder = blood_prop
+
+					if(self.data["virus2"])
+						blood_prop.virus2 = virus_copylist(self.data["virus2"])
 
 
 				else if(istype(self.data["donor"], /mob/living/carbon/monkey))
@@ -582,7 +591,12 @@ datum
 			reaction_turf(var/turf/T, var/volume)
 				src = null
 				if(!istype(T, /turf/space))
-					new /obj/effect/decal/cleanable/dirt(T)
+					var/obj/effect/decal/cleanable/dirt/dirtoverlay = locate(/obj/effect/decal/cleanable/dirt, T)
+					if (!dirtoverlay)
+						dirtoverlay = new/obj/effect/decal/cleanable/dirt(T)
+						dirtoverlay.alpha = volume*30
+					else
+						dirtoverlay.alpha = min(dirtoverlay.alpha+volume*30, 255)
 
 		chlorine
 			name = "Chlorine"
@@ -708,7 +722,9 @@ datum
 				src = null
 				if(volume >= 3)
 					if(!istype(T, /turf/space))
-						new /obj/effect/decal/cleanable/greenglow(T)
+						var/obj/effect/decal/cleanable/greenglow/glow = locate(/obj/effect/decal/cleanable/greenglow, T)
+						if(!glow)
+							new /obj/effect/decal/cleanable/greenglow(T)
 						return
 
 
@@ -748,9 +764,9 @@ datum
 				src = null
 				if(volume >= 5)
 					if(istype(T, /turf/simulated/wall))
-						T:thermite = 1
-						T.overlays.Cut()
-						T.overlays = image('icons/effects/effects.dmi',icon_state = "thermite")
+						var/turf/simulated/wall/W = T
+						W.thermite = 1
+						W.overlays += image('icons/effects/effects.dmi',icon_state = "#673910")
 				return
 
 			on_mob_life(var/mob/living/M as mob)
@@ -770,6 +786,8 @@ datum
 			on_mob_life(var/mob/living/M as mob)
 				if (volume > overdose)
 					M.hallucination = max(M.hallucination, 2)
+				..()
+				return
 
 		tramadol
 			name = "Tramadol"
@@ -782,6 +800,8 @@ datum
 			on_mob_life(var/mob/living/M as mob)
 				if (volume > overdose)
 					M.hallucination = max(M.hallucination, 2)
+				..()
+				return
 
 		oxycodone
 			name = "Oxycodone"
@@ -795,6 +815,8 @@ datum
 				if (volume > overdose)
 					M.druggy = max(M.druggy, 10)
 					M.hallucination = max(M.hallucination, 3)
+				..()
+				return
 
 
 		virus_food
@@ -872,7 +894,10 @@ datum
 				src = null
 				if(volume >= 3)
 					if(!istype(T, /turf/space))
-						new /obj/effect/decal/cleanable/greenglow(T)
+						var/obj/effect/decal/cleanable/greenglow/glow = locate(/obj/effect/decal/cleanable/greenglow, T)
+						if(!glow)
+							new /obj/effect/decal/cleanable/greenglow(T)
+						return
 
 		aluminum
 			name = "Aluminum"
@@ -908,9 +933,14 @@ datum
 			on_mob_life(var/mob/living/M as mob)
 				if(!M) M = holder.my_atom
 				M.adjustToxLoss(1)
-				M.adjust_fire_stacks(volume / 10) //для горения
 				..()
 				return
+			reaction_mob(var/mob/living/M, var/method=TOUCH, var/volume)//Splashing people with welding fuel to make them easy to ignite!
+				if(!istype(M, /mob/living))
+					return
+				if(method == TOUCH)
+					M.adjust_fire_stacks(volume / 10)
+					return
 
 		space_cleaner
 			name = "Space cleaner"
@@ -932,7 +962,6 @@ datum
 					if(istype(T, /turf/simulated))
 						var/turf/simulated/S = T
 						S.dirt = 0
-					T.overlays.Cut()
 					T.clean_blood()
 					for(var/obj/effect/decal/cleanable/C in T.contents)
 						src.reaction_obj(C, volume)
@@ -1534,10 +1563,10 @@ datum
 				..()
 				return
 
-		toxin/plasma
-			name = "Plasma"
-			id = "plasma"
-			description = "Plasma in its liquid form."
+		toxin/phoron
+			name = "Phoron"
+			id = "phoron"
+			description = "Phoron in its liquid form."
 			reagent_state = LIQUID
 			color = "#E71B00" // rgb: 231, 27, 0
 			toxpwr = 3
@@ -1546,7 +1575,6 @@ datum
 				if(!M) M = holder.my_atom
 				if(holder.has_reagent("inaprovaline"))
 					holder.remove_reagent("inaprovaline", 2*REM)
-				M.adjust_fire_stacks(volume / 5)
 				..()
 				return
 			reaction_obj(var/obj/O, var/volume)
@@ -1559,17 +1587,23 @@ datum
 				var/turf/the_turf = get_turf(O)
 				var/datum/gas_mixture/napalm = new
 				var/datum/gas/volatile_fuel/fuel = new
-				fuel.moles = 5
+				fuel.moles = volume
 				napalm.trace_gases += fuel
 				the_turf.assume_air(napalm)
 			reaction_turf(var/turf/T, var/volume)
 				src = null
 				var/datum/gas_mixture/napalm = new
 				var/datum/gas/volatile_fuel/fuel = new
-				fuel.moles = 5
+				fuel.moles = volume
 				napalm.trace_gases += fuel
 				T.assume_air(napalm)
 				return
+			reaction_mob(var/mob/living/M, var/method=TOUCH, var/volume)//Splashing people with plasma is stronger than fuel!
+				if(!istype(M, /mob/living))
+					return
+				if(method == TOUCH)
+					M.adjust_fire_stacks(volume / 5)
+					return
 
 		toxin/lexorin
 			name = "Lexorin"
@@ -1827,7 +1861,7 @@ datum
 		toxin/beer2	//disguised as normal beer for use by emagged brobots
 			name = "Beer"
 			id = "beer2"
-			description = "An alcoholic beverage made from malted grains, hops, yeast, and water. The fermentation appears to be imcomplete." //If the players manage to analyze this, they deserve to know something is wrong.
+			description = "An alcoholic beverage made from malted grains, hops, yeast, and water. The fermentation appears to be incomplete." //If the players manage to analyze this, they deserve to know something is wrong.
 			reagent_state = LIQUID
 			color = "#664300" // rgb: 102, 67, 0
 			custom_metabolism = 0.15 // Sleep toxins should always be consumed pretty fast
@@ -2951,7 +2985,6 @@ datum
 			on_mob_life(var/mob/living/M as mob)
 				M:nutrition += nutriment_factor
 				holder.remove_reagent(src.id, FOOD_METABOLISM)
-				M.adjust_fire_stacks(volume / 15)
 
 				if (adj_drowsy)	M.drowsyness = max(0,M.drowsyness + adj_drowsy)
 				if (adj_sleepy) M.sleeping = max(0,M.sleeping + adj_sleepy)
@@ -3000,6 +3033,13 @@ datum
 					else
 						usr << "It wasn't enough..."
 				return
+			reaction_mob(var/mob/living/M, var/method=TOUCH, var/volume)//Splashing people with ethanol isn't quite as good as fuel.
+				if(!istype(M, /mob/living))
+					return
+				if(method == TOUCH)
+					M.adjust_fire_stacks(volume / 15)
+					return
+
 
 		ethanol/beer
 			name = "Beer"

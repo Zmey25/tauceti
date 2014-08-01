@@ -25,8 +25,8 @@
 	var/automatic = 0 //Used to determine if you can target multiple people.
 	var/tmp/mob/living/last_moved_mob //Used to fire faster at more than one person.
 	var/tmp/told_cant_shoot = 0 //So that it doesn't spam them with the fact they cannot hit them.
-	var/firerate = 1 	// 0 for one bullet after tarrget moves and aim is lowered,
-						//1 for keep shooting until aim is lowered
+	var/firerate = 0 	//0 for keep shooting until aim is lowered
+						// 1 for one bullet after tarrget moves and aim is lowered
 	var/fire_delay = 6
 	var/last_fired = 0
 
@@ -160,7 +160,7 @@
 
 			chambered.BB.on_hit(M)
 			if (chambered.BB.damage_type != HALLOSS)
-				user.apply_damage(chambered.BB.damage*2.5, chambered.BB.damage_type, "head", used_weapon = "Point blank shot in the mouth with \a [chambered.BB]")
+				user.apply_damage(chambered.BB.damage*2.5, chambered.BB.damage_type, "head", used_weapon = "Point blank shot in the mouth with \a [chambered.BB]", sharp=1)
 				user.death()
 			else
 				user << "<span class = 'notice'>Ow...</span>"

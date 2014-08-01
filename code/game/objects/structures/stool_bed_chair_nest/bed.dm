@@ -10,17 +10,20 @@
 /obj/structure/stool/bed
 	name = "bed"
 	desc = "This is used to lie in, sleep in or strap on."
+	icon = 'tauceti/icons/obj/objects.dmi'
 	icon_state = "bed"
 	var/mob/living/buckled_mob
 
 /obj/structure/stool/bed/psych
-	name = "psych bed"
+	name = "psychiatrists couch"
 	desc = "For prime comfort during psychiatric evaluations."
+	icon = 'icons/obj/objects.dmi'
 	icon_state = "psychbed"
 
 /obj/structure/stool/bed/alien
 	name = "resting contraption"
 	desc = "This looks similar to contraptions from earth. Could aliens be stealing our technology?"
+	icon = 'icons/obj/objects.dmi'
 	icon_state = "abed"
 
 /obj/structure/stool/bed/Del()
@@ -179,7 +182,7 @@
 	if((over_object == usr && (in_range(src, usr) || usr.contents.Find(src))))
 		if(!ishuman(usr))	return
 		if(buckled_mob)	return 0
-		visible_message("[usr] collapses \the [src.name]")
+		visible_message("[usr] collapses \the [src.name].")
 		new/obj/item/roller(get_turf(src))
 		spawn(0)
 			del(src)

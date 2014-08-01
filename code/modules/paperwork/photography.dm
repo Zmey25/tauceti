@@ -26,18 +26,19 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "photo"
 	item_state = "paper"
-	w_class = 1.0
+	w_class = 2.0
 	var/icon/img	//Big photo image
 	var/scribble	//Scribble on the back.
 	var/blueprints = 0	//Does it include the blueprints?
+	var/icon/tiny
 
 /obj/item/weapon/photo/attack_self(mob/user as mob)
 	examine()
 
 /obj/item/weapon/photo/attackby(obj/item/weapon/P as obj, mob/user as mob)
 	if(istype(P, /obj/item/weapon/pen) || istype(P, /obj/item/toy/crayon))
-		var/txt = sanitize(input(user, "What would you like to write on the back?", "Photo Writing", null)  as text)
-		txt = copytext(txt, 1, 128)
+		var/txt = sanitize_alt(copytext(input(user, "What would you like to write on the back?", "Photo Writing", null)  as text, 1, 128))
+		//txt = copytext(txt, 1, 128)
 		if(loc == user && user.stat == 0)
 			scribble = txt
 	..()
@@ -52,7 +53,7 @@
 
 /obj/item/weapon/photo/proc/show(mob/user as mob)
 	user << browse_rsc(img, "tmp_photo.png")
-	user << browse("<html><head><title>[name]</title></head>" \
+	user << browse("<html><head><title>[sanitize_popup(name)]</title></head>" \
 		+ "<body style='overflow:hidden;margin:0;text-align:center'>" \
 		+ "<img src='tmp_photo.png' width='192' style='-ms-interpolation-mode:nearest-neighbor' />" \
 		+ "[scribble ? "<br>Written on the back:<br><i>[scribble]</i>" : ""]"\
@@ -65,10 +66,10 @@
 	set category = "Object"
 	set src in usr
 
-	var/n_name = copytext(sanitize(input(usr, "What would you like to label the photo?", "Photo Labelling", null)  as text), 1, MAX_NAME_LEN)
+	var/n_name = sanitize(copytext(input(usr, "What would you like to label the photo?", "Photo Labelling", null)  as text, 1, MAX_NAME_LEN))
 	//loc.loc check is for making possible renaming photos in clipboards
 	if(( (loc == usr || (loc.loc && loc.loc == usr)) && usr.stat == 0))
-		name = "photo[(n_name ? text("- '[n_name]'") : null)]"
+		name = "[(n_name ? text("[n_name]") : "photo")]"
 	add_fingerprint(usr)
 	return
 
@@ -85,7 +86,7 @@
 
 /obj/item/weapon/storage/photo_album/MouseDrop(obj/over_object as obj)
 
-	if((istype(usr, /mob/living/carbon/human) || (ticker && ticker.mode.name == "monkey")))
+	if((istype(usr, /mob/living/carbon/human)))
 		var/mob/M = usr
 		if(!( istype(over_object, /obj/screen) ))
 			return ..()
@@ -267,10 +268,15 @@
 	var/obj/item/weapon/photo/P = new/obj/item/weapon/photo()
 	user.put_in_hands(P)
 	var/icon/small_img = icon(temp)
+	var/icon/tiny_img = icon(temp)
 	var/icon/ic = icon('icons/obj/items.dmi',"photo")
+	var/icon/pc = icon('icons/obj/bureaucracy.dmi', "photo")
 	small_img.Scale(8, 8)
+	tiny_img.Scale(4, 4)
 	ic.Blend(small_img,ICON_OVERLAY, 10, 13)
+	pc.Blend(tiny_img,ICON_OVERLAY, 12, 19)
 	P.icon = ic
+	P.tiny = pc
 	P.img = temp
 	P.desc = mobs
 	P.pixel_x = rand(-10, 10)

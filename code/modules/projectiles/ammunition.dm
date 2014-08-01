@@ -38,7 +38,7 @@
 		if(BB)
 			if(initial(BB.name) == "bullet")
 				var/tmp_label = ""
-				var/label_text = sanitize(input(user, "Inscribe some text into \the [initial(BB.name)]","Inscription",tmp_label))
+				var/label_text = sanitize(copytext(input(user, "Inscribe some text into \the [initial(BB.name)]","Inscription",tmp_label), 1, MAX_NAME_LEN))
 				if(length(label_text) > 20)
 					user << "\red The inscription can be at most 20 characters long."
 				else
@@ -64,7 +64,7 @@
 	item_state = "syringe_kit"
 	m_amt = 50000
 	throwforce = 2
-	w_class = 1.0
+	w_class = 2.0
 	throw_speed = 4
 	throw_range = 10
 	var/list/stored_ammo = list()

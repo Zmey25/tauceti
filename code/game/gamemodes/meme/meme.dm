@@ -9,7 +9,7 @@
 	required_players_secret = 10
 	restricted_jobs = list("AI", "Cyborg")
 	recommended_enemies = 2 // need at least a meme and a host
-	votable = 0 // temporarily disable this mode for voting
+	votable = 1 // temporarily disable this mode for voting
 
 
 
@@ -46,7 +46,7 @@
 
 	// for every 10 players, get 1 meme, and for each meme, get a host
 	// also make sure that there's at least one meme and one host
-	recommended_enemies = max(src.num_players() / 20 * 2, 2)
+//	recommended_enemies = max(src.num_players() / 20 * 2, 2)
 
 	var/list/datum/mind/possible_memes = get_players_for_role(BE_MEME)
 
@@ -108,6 +108,9 @@
 
 
 /datum/game_mode/proc/forge_meme_objectives(var/datum/mind/meme, var/datum/mind/first_host)
+	if (config.objectives_disabled)
+		return
+
 	// meme always needs to attune X hosts
 	var/datum/objective/meme_attune/attune_objective = new
 	attune_objective.owner = meme

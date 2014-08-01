@@ -90,12 +90,17 @@
 	origin_tech = "materials=2;syndicate=5"
 
 
-/obj/item/weapon/pen/paralysis/attack(mob/M as mob, mob/user as mob)
+/obj/item/weapon/pen/paralysis/attack(mob/living/M as mob, mob/user as mob)
+
 	if(!(istype(M,/mob)))
 		return
+
 	..()
-	if(reagents.total_volume)
-		if(M.reagents) reagents.trans_to(M, 50)
+
+
+	if(M.can_inject(user,1))
+		if(reagents.total_volume)
+			if(M.reagents) reagents.trans_to(M, 50)
 	return
 
 
@@ -104,7 +109,6 @@
 	reagents = R
 	R.my_atom = src
 	R.add_reagent("zombiepowder", 10)
-	R.add_reagent("impedrezene", 25)
 	R.add_reagent("cryptobiolin", 15)
 	..()
 	return

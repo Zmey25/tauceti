@@ -5,6 +5,7 @@
 	desc = "A folded bag designed for the storage and transportation of cadavers."
 	icon = 'icons/obj/bodybag.dmi'
 	icon_state = "bodybag_folded"
+	w_class = 2.0
 
 	attack_self(mob/user)
 		var/obj/structure/closet/body_bag/R = new /obj/structure/closet/body_bag(user.loc)
@@ -45,7 +46,7 @@
 				return
 			if (!in_range(src, user) && src.loc != user)
 				return
-			t = copytext(sanitize(t),1,MAX_MESSAGE_LEN)
+			t = sanitize(copytext(t,1,MAX_MESSAGE_LEN))
 			if (t)
 				src.name = "body bag - "
 				src.name += t

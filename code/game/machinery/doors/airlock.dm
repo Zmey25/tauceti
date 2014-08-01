@@ -258,37 +258,37 @@ Airlock index -> wire color are { 9, 4, 6, 7, 5, 8, 1, 2, 3 }.
 		L.apply_effect(15,IRRADIATE,0)
 	return
 
-/obj/machinery/door/airlock/plasma
-	name = "Plasma Airlock"
+/obj/machinery/door/airlock/phoron
+	name = "Phoron Airlock"
 	desc = "No way this can end badly."
-	icon = 'icons/obj/doors/Doorplasma.dmi'
-	mineral = "plasma"
+	icon = 'icons/obj/doors/Doorphoron.dmi'
+	mineral = "phoron"
 
-/obj/machinery/door/airlock/plasma/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+/obj/machinery/door/airlock/phoron/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature > 300)
-		PlasmaBurn(exposed_temperature)
+		PhoronBurn(exposed_temperature)
 
-/obj/machinery/door/airlock/plasma/proc/ignite(exposed_temperature)
+/obj/machinery/door/airlock/phoron/proc/ignite(exposed_temperature)
 	if(exposed_temperature > 300)
-		PlasmaBurn(exposed_temperature)
+		PhoronBurn(exposed_temperature)
 
-/obj/machinery/door/airlock/plasma/proc/PlasmaBurn(temperature)
+/obj/machinery/door/airlock/phoron/proc/PhoronBurn(temperature)
 	for(var/turf/simulated/floor/target_tile in range(2,loc))
 //		if(target_tile.parent && target_tile.parent.group_processing) // THESE PROBABLY DO SOMETHING IMPORTANT BUT I DON'T KNOW HOW TO FIX IT - Erthilo
 //			target_tile.parent.suspend_group_processing()
 		var/datum/gas_mixture/napalm = new
-		var/toxinsToDeduce = 35
-		napalm.toxins = toxinsToDeduce
+		var/phoronToDeduce = 35
+		napalm.phoron = phoronToDeduce
 		napalm.temperature = 400+T0C
 		target_tile.assume_air(napalm)
 		spawn (0) target_tile.hotspot_expose(temperature, 400)
-	for(var/obj/structure/falsewall/plasma/F in range(3,src))//Hackish as fuck, but until temperature_expose works, there is nothing I can do -Sieve
+	for(var/obj/structure/falsewall/phoron/F in range(3,src))//Hackish as fuck, but until temperature_expose works, there is nothing I can do -Sieve
 		var/turf/T = get_turf(F)
-		T.ChangeTurf(/turf/simulated/wall/mineral/plasma/)
+		T.ChangeTurf(/turf/simulated/wall/mineral/phoron/)
 		del (F)
-	for(var/turf/simulated/wall/mineral/plasma/W in range(3,src))
+	for(var/turf/simulated/wall/mineral/phoron/W in range(3,src))
 		W.ignite((temperature/4))//Added so that you can't set off a massive chain reaction with a small flame
-	for(var/obj/machinery/door/airlock/plasma/D in range(3,src))
+	for(var/obj/machinery/door/airlock/phoron/D in range(3,src))
 		D.ignite(temperature/4)
 	new/obj/structure/door_assembly( src.loc )
 	del (src)
@@ -366,7 +366,7 @@ About the new airlock wires panel:
 			//Sending a pulse through this flashes the red light on the door (if the door has power).
 			if((src.arePowerSystemsOn()) && (!(stat & NOPOWER)))
 				do_animate("deny")
-		if(AIRLOCK_WIRE_MAIN_POWER1 || AIRLOCK_WIRE_MAIN_POWER2)
+		if(AIRLOCK_WIRE_MAIN_POWER1, AIRLOCK_WIRE_MAIN_POWER2)
 			//Sending a pulse through either one causes a breaker to trip, disabling the door for 10 seconds if backup power is connected, or 1 minute if not (or until backup power comes back on, whichever is shorter).
 			src.loseMainPower()
 		if(AIRLOCK_WIRE_DOOR_BOLTS)
@@ -385,7 +385,7 @@ About the new airlock wires panel:
 					src.updateUsrDialog()
 			update_icon()
 
-		if(AIRLOCK_WIRE_BACKUP_POWER1 || AIRLOCK_WIRE_BACKUP_POWER2)
+		if(AIRLOCK_WIRE_BACKUP_POWER1, AIRLOCK_WIRE_BACKUP_POWER2)
 			//two wires for backup power. Sending a pulse through either one causes a breaker to trip, but this does not disable it unless main power is down too (in which case it is disabled for 1 minute or however long it takes main power to come back, whichever is shorter).
 			src.loseBackupPower()
 		if(AIRLOCK_WIRE_AI_CONTROL)
@@ -440,7 +440,7 @@ About the new airlock wires panel:
 	var/wireIndex = airlockWireColorToIndex[wireColor]
 	wires &= ~wireFlag
 	switch(wireIndex)
-		if(AIRLOCK_WIRE_MAIN_POWER1 || AIRLOCK_WIRE_MAIN_POWER2)
+		if(AIRLOCK_WIRE_MAIN_POWER1, AIRLOCK_WIRE_MAIN_POWER2)
 			//Cutting either one disables the main door power, but unless backup power is also cut, the backup power re-powers the door in 10 seconds. While unpowered, the door may be crowbarred open, but bolts-raising will not work. Cutting these wires may electocute the user.
 			src.loseMainPower()
 			src.shock(usr, 50)
@@ -451,7 +451,7 @@ About the new airlock wires panel:
 				src.locked = 1
 			update_icon()
 			src.updateUsrDialog()
-		if(AIRLOCK_WIRE_BACKUP_POWER1 || AIRLOCK_WIRE_BACKUP_POWER2)
+		if(AIRLOCK_WIRE_BACKUP_POWER1, AIRLOCK_WIRE_BACKUP_POWER2)
 			//Cutting either one disables the backup door power (allowing it to be crowbarred open, but disabling bolts-raising), but may electocute the user.
 			src.loseBackupPower()
 			src.shock(usr, 50)
@@ -487,12 +487,12 @@ About the new airlock wires panel:
 	var/wireIndex = airlockWireColorToIndex[wireColor] //not used in this function
 	wires |= wireFlag
 	switch(wireIndex)
-		if(AIRLOCK_WIRE_MAIN_POWER1 || AIRLOCK_WIRE_MAIN_POWER2)
+		if(AIRLOCK_WIRE_MAIN_POWER1, AIRLOCK_WIRE_MAIN_POWER2)
 			if((!src.isWireCut(AIRLOCK_WIRE_MAIN_POWER1)) && (!src.isWireCut(AIRLOCK_WIRE_MAIN_POWER2)))
 				src.regainMainPower()
 				src.shock(usr, 50)
 				src.updateUsrDialog()
-		if(AIRLOCK_WIRE_BACKUP_POWER1 || AIRLOCK_WIRE_BACKUP_POWER2)
+		if(AIRLOCK_WIRE_BACKUP_POWER1, AIRLOCK_WIRE_BACKUP_POWER2)
 			if((!src.isWireCut(AIRLOCK_WIRE_BACKUP_POWER1)) && (!src.isWireCut(AIRLOCK_WIRE_BACKUP_POWER2)))
 				src.regainBackupPower()
 				src.shock(usr, 50)
@@ -1250,7 +1250,7 @@ About the new airlock wires panel:
 		..()
 	return
 
-/obj/machinery/door/airlock/plasma/attackby(C as obj, mob/user as mob)
+/obj/machinery/door/airlock/phoron/attackby(C as obj, mob/user as mob)
 	if(C)
 		ignite(is_hot(C))
 	..()

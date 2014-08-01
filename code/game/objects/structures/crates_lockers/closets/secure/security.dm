@@ -29,6 +29,7 @@
 		new /obj/item/clothing/suit/armor/captain(src)
 		new /obj/item/weapon/melee/telebaton(src)
 		new /obj/item/clothing/under/dress/dress_cap(src)
+		new /obj/item/clothing/under/rank/capcamsole(src)
 		return
 
 
@@ -70,6 +71,7 @@
 	New()
 		..()
 		sleep(2)
+		new /obj/item/clothing/head/fez(src)
 		new /obj/item/clothing/under/rank/head_of_personnel(src)
 		new /obj/item/clothing/under/dress/dress_hop(src)
 		new /obj/item/clothing/under/dress/dress_hr(src)
@@ -82,6 +84,8 @@
 		new /obj/item/clothing/shoes/leather(src)
 		new /obj/item/clothing/shoes/white(src)
 		new /obj/item/clothing/under/rank/head_of_personnel_whimsy(src)
+		new /obj/item/clothing/under/rank/goodman_shirt(src)
+		new /obj/item/clothing/suit/goodman_jacket(src)
 		return
 
 
@@ -257,8 +261,10 @@
 		new /obj/item/clothing/under/det(src)
 		new /obj/item/clothing/under/det/black(src)
 		new /obj/item/clothing/under/det/slob(src)
+		new /obj/item/clothing/under/det/max_payne(src)
 		new /obj/item/clothing/suit/storage/det_suit(src)
 		new /obj/item/clothing/suit/storage/det_suit/black(src)
+		new /obj/item/clothing/suit/storage/det_suit/max_payne(src)
 		new /obj/item/clothing/gloves/black(src)
 		new /obj/item/clothing/head/det_hat(src)
 		new /obj/item/clothing/head/det_hat/black(src)

@@ -13,7 +13,7 @@
 
 /obj/structure/bookcase
 	name = "bookcase"
-	icon = 'icons/obj/library.dmi'
+	icon = 'tauceti/icons/obj/objects.dmi'
 	icon_state = "book-0"
 	anchored = 1
 	density = 1
@@ -87,6 +87,9 @@
 	New()
 		..()
 		new /obj/item/weapon/book/manual/medical_cloning(src)
+		new /obj/item/weapon/book/manual/medical_diagnostics_manual(src)
+		new /obj/item/weapon/book/manual/medical_diagnostics_manual(src)
+		new /obj/item/weapon/book/manual/medical_diagnostics_manual(src)
 		update_icon()
 
 
@@ -172,7 +175,7 @@
 		var/choice = input("What would you like to change?") in list("Title", "Contents", "Author", "Cancel")
 		switch(choice)
 			if("Title")
-				var/newtitle = reject_bad_text(stripped_input(usr, "Write a new title:"))
+				var/newtitle = sanitize(copytext(input(usr, "Write a new title:"), 1, MAX_NAME_LEN))
 				if(!newtitle)
 					usr << "The title is invalid."
 					return
@@ -180,14 +183,14 @@
 					src.name = newtitle
 					src.title = newtitle
 			if("Contents")
-				var/content = strip_html(input(usr, "Write your book's contents (HTML NOT allowed):"),8192) as message|null
+				var/content = sanitize_alt(copytext(input(usr, "Write your book's contents (HTML NOT allowed):") as message|null,1, 8192))
 				if(!content)
 					usr << "The content is invalid."
 					return
 				else
 					src.dat += content
 			if("Author")
-				var/newauthor = stripped_input(usr, "Write the author's name:")
+				var/newauthor = sanitize_alt(copytext(input(usr, "Write the author's name:"),1, MAX_NAME_LEN))
 				if(!newauthor)
 					usr << "The name is invalid."
 					return
@@ -234,6 +237,12 @@
 	else
 		..()
 
+/obj/item/weapon/book/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
+	if(user.zone_sel.selecting == "eyes")
+		user.visible_message("<span class='notice'>You open up the book and show it to [M]. </span>", \
+			"<span class='notice'> [user] opens up a book and shows it to [M]. </span>")
+		M << browse("<TT><I>Penned by [author].</I></TT> <BR>" + "[dat]", "window=book")
+
 
 /*
  * Barcode Scanner
@@ -244,7 +253,7 @@
 	icon_state ="scanner"
 	throw_speed = 1
 	throw_range = 5
-	w_class = 1.0
+	w_class = 2.0
 	flags = FPRINT | TABLEPASS
 	var/obj/machinery/librarycomp/computer // Associated computer - Modes 1 to 3 use this
 	var/obj/item/weapon/book/book	 //  Currently scanned book
