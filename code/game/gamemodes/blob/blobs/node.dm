@@ -14,7 +14,7 @@
 /obj/effect/blob/node/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	return
 
-/obj/effect/blob/node/Del()
+/obj/effect/blob/node/Destroy()
 	blob_nodes -= src
 	processing_objects.Remove(src)
 	..()
@@ -27,7 +27,6 @@
 
 /obj/effect/blob/node/update_icon()
 	if(health <= 0)
-		playsound(src.loc, 'sound/effects/splat.ogg', 50, 1)
-		Delete()
+		qdel(src)
 		return
 	return

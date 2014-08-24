@@ -33,7 +33,7 @@
 
 /mob/living/carbon/human/Life()
 	set invisibility = 0
-	//set background = 1
+	set background = 1
 
 	if (monkeyizing)	return
 	if(!loc)			return	// Fixing a null error that occurs when the mob isn't found in the world -- TLE
@@ -1523,6 +1523,14 @@
 				if(!isRemoteObserve && client && !client.adminobs)
 					remoteview_target = null
 					reset_view(null)
+
+
+			if(mind && mind.changeling)
+				hud_used.lingchemdisplay.invisibility = 0
+				hud_used.lingchemdisplay.maptext = "<div align='center' valign='middle' style='position:relative; top:0px; left:6px'> <font color='#dd66dd'>[mind.changeling.chem_charges]</font></div>"
+			else
+				hud_used.lingchemdisplay.invisibility = 101
+
 		return 1
 
 	proc/handle_random_events()
@@ -1829,6 +1837,14 @@
 					holder.icon_state = "huddeathsquad"
 				if("Ninja")
 					holder.icon_state = "hudninja"
+				if("head_loyalist")
+					holder.icon_state = "loyalist"
+				if("loyalist")
+					holder.icon_state = "loyalist"
+				if("head_mutineer")
+					holder.icon_state = "mutineer"
+				if("mutineer")
+					holder.icon_state = "mutineer"
 
 			hud_list[SPECIALROLE_HUD] = holder
 	hud_updateflag = 0

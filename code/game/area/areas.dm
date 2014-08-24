@@ -106,6 +106,10 @@
 			air_doors_close()
 		
 		atmosalm = danger_level
+		for(var/area/RA in related)
+			for (var/obj/machinery/alarm/AA in RA)
+				AA.update_icon()
+		
 		return 1
 	return 0
 

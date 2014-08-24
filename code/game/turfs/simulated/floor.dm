@@ -74,6 +74,21 @@ var/list/wood_icons = list("wood","wood-broken")
 				src.hotspot_expose(1000,CELL_VOLUME)
 	return
 
+/turf/simulated/floor/fire_act(datum/gas_mixture/air, exposed_temperature, exposed_volume)
+	if(!burnt && prob(5))
+		burn_tile()
+	else if(prob(1) && !is_plating())
+		make_plating()
+		burn_tile()
+	return
+
+/turf/simulated/floor/adjacent_fire_act(turf/simulated/floor/adj_turf, datum/gas_mixture/adj_air, adj_temp, adj_volume)
+	var/dir_to = get_dir(src, adj_turf)
+
+	for(var/obj/structure/window/W in src)
+		if(W.dir == dir_to || W.is_fulltile()) //Same direction or diagonal (full tile)
+			W.fire_act(adj_air, adj_temp, adj_volume)
+
 /turf/simulated/floor/blob_act()
 	return
 
@@ -315,7 +330,7 @@ turf/simulated/floor/proc/update_icon()
 						FF.update_icon() //so siding get updated properly
 
 	if(!floor_tile) return
-	del(floor_tile)
+	qdel(floor_tile)
 	icon_plating = "plating"
 	SetLuminosity(0)
 	floor_tile = null
@@ -436,7 +451,7 @@ turf/simulated/floor/proc/update_icon()
 			var/obj/item/stack/tile/light/T = floor_tile
 			if(T.state)
 				user.drop_item(C)
-				del(C)
+				qdel(C)
 				T.state = C //fixing it by bashing it with a light bulb, fun eh?
 				update_icon()
 				user << "\blue You replace the light bulb."
