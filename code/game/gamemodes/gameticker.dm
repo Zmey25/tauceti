@@ -71,6 +71,7 @@ var/global/datum/controller/gameticker/ticker
 
 
 /datum/controller/gameticker/proc/setup()
+	CatchThisBug("Proc: gameticker/setup, stage: START PROC")
 	//Create and announce mode
 	if(master_mode=="secret")
 		src.hide_mode = 1
@@ -120,9 +121,15 @@ var/global/datum/controller/gameticker/ticker
 	else
 		src.mode.announce()
 
+	CatchThisBug("Proc: gameticker/setup, stage: create_characters(), start")
 	create_characters() //Create player characters and transfer them
+	CatchThisBug("Proc: gameticker/setup, stage: create_characters(), end")
+	CatchThisBug("Proc: gameticker/setup, stage: collect_minds(), start")
 	collect_minds()
+	CatchThisBug("Proc: gameticker/setup, stage: collect_minds(), end")
+	CatchThisBug("Proc: gameticker/setup, stage: equip_characters(), start")
 	equip_characters()
+	CatchThisBug("Proc: gameticker/setup, stage: equip_characters(), end")
 	data_core.manifest()
 	current_state = GAME_STATE_PLAYING
 
@@ -163,6 +170,7 @@ var/global/datum/controller/gameticker/ticker
 		spawn(3000)
 		statistic_cycle() // Polls population totals regularly and stores them in an SQL DB -- TLE
 
+	CatchThisBug("Proc: gameticker/setup, stage: END PROC")
 	return 1
 
 /datum/controller/gameticker
@@ -270,17 +278,26 @@ var/global/datum/controller/gameticker/ticker
 
 
 	proc/create_characters()
+		CatchThisBug("Proc: gameticker/create_characters, stage: START PROC")
 		for(var/mob/new_player/player in player_list)
+			CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player]")
 			if(player.ready && player.mind)
 				if(player.mind.assigned_role=="AI")
+					CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player], player-role: AI")
 					player.close_spawn_windows()
 					player.AIize()
 				else if(!player.mind.assigned_role)
+					CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player], there is no role, continue")
 					continue
 				else
+					CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player], player-role: [player.mind.assigned_role]")
+					CatchThisBug("Proc: gameticker/create_characters, stage: player.create_character(), start")
 					player.create_character()
+					CatchThisBug("Proc: gameticker/create_characters, stage: player.create_character(), end")
+					CatchThisBug("Proc: gameticker/create_characters, stage: del(player), start")
 					del(player)
-
+					CatchThisBug("Proc: gameticker/create_characters, stage: del(player), end")
+		CatchThisBug("Proc: gameticker/create_characters, stage: END PROC")
 
 	proc/collect_minds()
 		for(var/mob/living/player in player_list)

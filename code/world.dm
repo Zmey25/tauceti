@@ -5,6 +5,9 @@
 	view = "15x15"
 	cache_lifespan = 0	//stops player uploaded stuff from being kept in the rsc past the current session
 
+var/ctbfile
+proc/CatchThisBug(text)
+	ctbfile << "[text][log_end]"
 
 
 #define RECOMMENDED_VERSION 501
@@ -17,6 +20,9 @@
 	diary << "[log_end]\n[log_end]\nStarting up. [time2text(world.timeofday, "hh:mm.ss")][log_end]\n---------------------[log_end]"
 	diaryofmeanpeople << "[log_end]\n[log_end]\nStarting up. [time2text(world.timeofday, "hh:mm.ss")][log_end]\n---------------------[log_end]"
 	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
+
+	var/date_string2 = time2text(world.realtime, "MM-DD-hh-mm")
+	ctbfile = file("ctflogs/[date_string2].log")
 
 	if(byond_version < RECOMMENDED_VERSION)
 		world.log << "Your server's byond version does not meet the recommended requirements for this server. Please update BYOND"
