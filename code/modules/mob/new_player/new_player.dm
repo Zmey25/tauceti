@@ -350,38 +350,46 @@
 
 
 	proc/create_character()
+		CatchThisBug("Proc: gameticker/create_character, stage: START PROC")
 		spawning = 1
+		CatchThisBug("Proc: gameticker/create_characters, stage: closing spawn windows - START")
 		close_spawn_windows()
-
+		CatchThisBug("Proc: gameticker/create_characters, stage: closing spawn windows - END")
 		var/mob/living/carbon/human/new_character
-
+		
 		var/datum/species/chosen_species
 		if(client.prefs.species)
 			chosen_species = all_species[client.prefs.species]
+			CatchThisBug("Proc: gameticker/create_characters, stage: chosen_species = [chosen_species]C")
 		if(chosen_species)
 			// Have to recheck admin due to no usr at roundstart. Latejoins are fine though.
 			if(is_species_whitelisted(chosen_species) || has_admin_rights())
+				CatchThisBug("Proc: gameticker/create_characters, stage: admin bypass whitelist START")
 				new_character = new(loc, client.prefs.species)
-
+				CatchThisBug("Proc: gameticker/create_characters, stage: admin bypass whitelist END - [new_character]")
 		if(!new_character)
 			new_character = new(loc)
+			CatchThisBug("Proc: gameticker/create_characters, stage: new character created [new_character]")
 
 		new_character.lastarea = get_area(loc)
-
+		CatchThisBug("Proc: gameticker/create_characters, stage: new_character.lastarea = [new_character.lastarea] START")
 		var/datum/language/chosen_language
 		if(client.prefs.language)
 			chosen_language = all_languages["[client.prefs.language]"]
+			CatchThisBug("Proc: gameticker/create_characters, stage: chosen_language [chosen_language]")
 		if(chosen_language)
 			if(is_alien_whitelisted(src, client.prefs.language) || !config.usealienwhitelist || !(chosen_language.flags & WHITELISTED))
 				new_character.add_language("[client.prefs.language]")
+				CatchThisBug("Proc: gameticker/create_characters, stage: language added [[client.prefs.language]]")
 
 		if(ticker.random_players)
 			new_character.gender = pick(MALE, FEMALE)
 			client.prefs.real_name = random_name(new_character.gender)
 			client.prefs.randomize_appearance_for(new_character)
 		else
+			CatchThisBug("Proc: gameticker/create_characters, stage: copying prefs START")	
 			client.prefs.copy_to(new_character)
-
+			CatchThisBug("Proc: gameticker/create_characters, stage: copying prefs END")
 		src << sound(null, repeat = 0, wait = 0, volume = 85, channel = 1) // MAD JAMS cant last forever yo
 
 		if(mind)
@@ -390,8 +398,10 @@
 				new_character.real_name = pick(clown_names)	//I hate this being here of all places but unfortunately dna is based on real_name!
 				new_character.rename_self("clown")
 			mind.original = new_character
+			CatchThisBug("Proc: gameticker/create_characters, stage: mind-original [mind.original]")
+			CatchThisBug("Proc: gameticker/create_characters, stage: mind transfer START")
 			mind.transfer_to(new_character)					//won't transfer key since the mind is not active
-
+			CatchThisBug("Proc: gameticker/create_characters, stage: mind transfer END")
 		new_character.name = real_name
 		new_character.dna.ready_dna(new_character)
 		new_character.dna.b_type = client.prefs.b_type
@@ -422,10 +432,13 @@
 			new_character.disabilities |= NERVOUS
 
 		// And uncomment this, too.
+		CatchThisBug("Proc: gameticker/create_characters, stage: updating SE START")
 		new_character.dna.UpdateSE()
-
+		CatchThisBug("Proc: gameticker/create_characters, stage: updating SE END")
+		CatchThisBug("Proc: gameticker/create_characters, stage: manual mind transfer START")
 		new_character.key = key		//Manually transfer the key to log them in
-
+		CatchThisBug("Proc: gameticker/create_characters, stage: manual mind transfer [new_character.key] END")
+		CatchThisBug("Proc: gameticker/create_characters, stage: finished new_character - [new_character]")
 		return new_character
 
 	proc/ViewManifest()
