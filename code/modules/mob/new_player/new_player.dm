@@ -380,7 +380,7 @@
 		if(chosen_language)
 			if(is_alien_whitelisted(src, client.prefs.language) || !config.usealienwhitelist || !(chosen_language.flags & WHITELISTED))
 				new_character.add_language("[client.prefs.language]")
-				CatchThisBug("Proc: gameticker/create_characters, stage: language added [[client.prefs.language]]")
+				CatchThisBug("Proc: gameticker/create_characters, stage: language added [client.prefs.language]")
 
 		if(ticker.random_players)
 			new_character.gender = pick(MALE, FEMALE)
