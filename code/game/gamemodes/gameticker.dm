@@ -279,9 +279,9 @@ var/global/datum/controller/gameticker/ticker
 
 	proc/create_characters()
 		CatchThisBug("Proc: gameticker/create_characters, stage: START PROC")
-		sleep(1)
 		for(var/mob/new_player/player in player_list)
 			CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player]")
+			sleep(1)
 			if(player.ready && player.mind)
 				if(player.mind.assigned_role=="AI")
 					CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player], player-role: AI")
