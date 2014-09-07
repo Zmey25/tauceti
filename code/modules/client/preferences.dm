@@ -17,7 +17,8 @@ var/global/list/special_roles = list( //keep synced with the defines BE_* in set
 	"ninja" = "true",									 // 10
 	"vox raider" = IS_MODE_COMPILED("heist"),			 // 11
 	"diona" = 1,                                         // 12
-	"meme" = IS_MODE_COMPILED("meme"),				 // 13
+	"meme" = IS_MODE_COMPILED("meme"),				 	 // 13
+	"mutineer" = IS_MODE_COMPILED("mutiny"),			 // 14
 )
 
 var/const/MAX_SAVE_SLOTS = 10
@@ -260,7 +261,7 @@ datum/preferences
 		dat += "<b>Ghost radio:</b> <a href='?_src_=prefs;preference=ghost_radio'><b>[(toggles & CHAT_GHOSTRADIO) ? "All Chatter" : "Nearest Speakers"]</b></a><br>"
 
 		if(config.allow_Metadata)
-			dat += "<b>OOC Notes:</b> <a href='?_src_=prefs;preference=metadata;task=input'> Edit </a><br>"
+			dat += "<b>OOC Notes:</b><br>[sanitize_popup(copytext(metadata, 1, 37))]...<a href='?_src_=prefs;preference=metadata;task=input'> Edit</a><br>"
 
 		dat += "<br><b>Occupation Choices</b><br>"
 		dat += "\t<a href='?_src_=prefs;preference=job;task=menu'><b>Set Preferences</b></a><br>"
@@ -833,7 +834,7 @@ datum/preferences
 			else
 				user << browse(null, "window=records")
 			if(href_list["task"] == "med_record")
-				var/medmsg = sanitize(copytext(input(usr,"Set your medical notes here.","Medical Records",html_decode(revert_ja(med_record))) as message, 1, MAX_PAPER_MESSAGE_LEN))
+				var/medmsg = sanitize(copytext(input(usr,"Set your medical notes here.","Medical Records",html_decode(revert_ja(med_record))) as message, 1, MAX_PAPER_MESSAGE_LEN), list("ÿ"=LETTER_255))
 
 				if(medmsg != null)
 					//medmsg = sanitize_simple(copytext(medmsg, 1, MAX_PAPER_MESSAGE_LEN))
@@ -843,7 +844,7 @@ datum/preferences
 					SetRecords(user)
 
 			if(href_list["task"] == "sec_record")
-				var/secmsg = sanitize(copytext(input(usr,"Set your security notes here.","Security Records",html_decode(revert_ja(sec_record))) as message, 1, MAX_PAPER_MESSAGE_LEN))
+				var/secmsg = sanitize(copytext(input(usr,"Set your security notes here.","Security Records",html_decode(revert_ja(sec_record))) as message, 1, MAX_PAPER_MESSAGE_LEN), list("ÿ"=LETTER_255))
 
 				if(secmsg != null)
 					//secmsg = sanitize_simple(copytext(secmsg, 1, MAX_PAPER_MESSAGE_LEN))
@@ -852,7 +853,7 @@ datum/preferences
 					sec_record = secmsg
 					SetRecords(user)
 			if(href_list["task"] == "gen_record")
-				var/genmsg = sanitize(copytext(input(usr,"Set your employment notes here.","Employment Records",html_decode(revert_ja(gen_record))) as message, 1, MAX_PAPER_MESSAGE_LEN))
+				var/genmsg = sanitize(copytext(input(usr,"Set your employment notes here.","Employment Records",html_decode(revert_ja(gen_record))) as message, 1, MAX_PAPER_MESSAGE_LEN), list("ÿ"=LETTER_255))
 
 				if(genmsg != null)
 					//genmsg = sanitize_simple(copytext(genmsg, 1, MAX_PAPER_MESSAGE_LEN))
@@ -1022,7 +1023,7 @@ datum/preferences
 						language = input("Please select a secondary language", "Character Generation", null) in new_languages
 
 					if("metadata")
-						var/new_metadata = input(user, "Enter any information you'd like others to see, such as Roleplay-preferences:", "Game Preference" , metadata)  as message|null
+						var/new_metadata = input(user, "Enter any OOC information you'd like others to see:", "Game Preference" , html_decode(revert_ja(metadata)))  as message|null
 						if(new_metadata)
 							metadata = sanitize(copytext(new_metadata,1,MAX_MESSAGE_LEN))
 
@@ -1135,7 +1136,7 @@ datum/preferences
 							nanotrasen_relation = new_relation
 
 					if("flavor_text")
-						var/msg = sanitize(copytext(input(usr,"Set the flavor text in your 'examine' verb. This can also be used for OOC notes and preferences!","Flavor Text",html_decode(revert_ja(flavor_text))) as message, 1, MAX_MESSAGE_LEN))
+						var/msg = sanitize(copytext(input(usr,"Set the flavor text in your 'examine' verb.","Flavor Text",html_decode(revert_ja(flavor_text))) as message, 1, MAX_MESSAGE_LEN))
 
 						if(msg != null)
 							//msg = sanitize_simple(copytext(msg, 1, MAX_MESSAGE_LEN))
@@ -1342,6 +1343,7 @@ datum/preferences
 			character.dna.real_name = character.real_name
 
 		character.flavor_text = flavor_text
+		character.metadata = metadata
 		character.med_record = med_record
 		character.sec_record = sec_record
 		character.gen_record = gen_record
@@ -1394,6 +1396,7 @@ datum/preferences
 
 			else continue
 
+
 		//Disabilities
 		if(disabilities & DISABILITY_NEARSIGHTED)
 			character.disabilities|=NEARSIGHTED
@@ -1405,6 +1408,17 @@ datum/preferences
 			character.disabilities|=TOURETTES
 		if(disabilities & DISABILITY_NERVOUS)
 			character.disabilities|=NERVOUS
+
+		// Wheelchair necessary?
+		var/datum/organ/external/l_foot = character.get_organ("l_foot")
+		var/datum/organ/external/r_foot = character.get_organ("r_foot")
+		if((!l_foot || l_foot.status & ORGAN_DESTROYED) && (!r_foot || r_foot.status & ORGAN_DESTROYED))
+			var/obj/structure/stool/bed/chair/wheelchair/W = new /obj/structure/stool/bed/chair/wheelchair (character.loc)
+			character.buckled = W
+			character.update_canmove()
+			W.dir = character.dir
+			W.buckled_mob = character
+			W.add_fingerprint(character)
 
 		if(underwear > underwear_m.len || underwear < 1)
 			underwear = 0 //I'm sure this is 100% unnecessary, but I'm paranoid... sue me. //HAH NOW NO MORE MAGIC CLONING UNDIES

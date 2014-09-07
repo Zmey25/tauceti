@@ -145,6 +145,9 @@
 			return
 	return
 
+/turf/proc/adjacent_fire_act(turf/simulated/floor/source, temperature, volume)
+	return
+
 /turf/proc/is_plating()
 	return 0
 /turf/proc/is_asteroid_floor()
@@ -193,7 +196,7 @@
 /turf/proc/RemoveLattice()
 	var/obj/structure/lattice/L = locate(/obj/structure/lattice, src)
 	if(L)
-		del L
+		qdel(L)
 
 //Creates a new turf
 /turf/proc/ChangeTurf(var/turf/N)

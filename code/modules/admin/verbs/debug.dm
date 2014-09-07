@@ -29,7 +29,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	set category = "Debug"
 	set name = "Advanced ProcCall"
 
-	if(!check_rights(R_DEBUG)) return
+	if(!check_rights(R_PERMISSIONS)) return
 
 	spawn(0)
 		var/target = null
@@ -247,6 +247,22 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	else
 		alert("Invalid mob")
 
+/client/proc/cmd_admin_blobize(var/mob/M in mob_list)
+	set category = "Fun"
+	set name = "Make Blob"
+
+	if(!ticker)
+		alert("Wait until the game starts")
+		return
+	if(istype(M, /mob/living/carbon/human))
+		log_admin("[key_name(src)] has blobized [M.key].")
+		var/mob/living/carbon/human/H = M
+		spawn(10)
+			H.Blobize()
+
+	else
+		alert("Invalid mob")
+
 /*
 /client/proc/cmd_admin_monkeyize(var/mob/M in world)
 	set category = "Fun"
@@ -349,7 +365,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	if(hsbitem)
 		for(var/atom/O in world)
 			if(istype(O, hsbitem))
-				del(O)
+				qdel(O)
 		log_admin("[key_name(src)] has deleted all instances of [hsbitem].")
 		message_admins("[key_name_admin(src)] has deleted all instances of [hsbitem].", 0)
 	feedback_add_details("admin_verb","DELA") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
@@ -419,7 +435,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	var/mob/adminmob = src.mob
 	M.ckey = src.ckey
 	if( isobserver(adminmob) )
-		del(adminmob)
+		qdel(adminmob)
 	feedback_add_details("admin_verb","ADC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 
@@ -583,7 +599,9 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 		"miner",
 		"librarian",
 		"agent",
-		"assistant"
+		"assistant",
+		"mime",
+		"clown"
 		)
 	var/dresscode = input("Select dress for [M]", "Robust quick dress shop") as null|anything in dresspacks
 	if (isnull(dresscode))
@@ -592,7 +610,7 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 	for (var/obj/item/I in M)
 		if (istype(I, /obj/item/weapon/implant))
 			continue
-		del(I)
+		qdel(I)
 	switch(dresscode)
 		if ("strip")
 			//do nothing
@@ -1508,6 +1526,58 @@ But you can call procs that are of type /mob/living/carbon/human/proc/ for that 
 			W.name = "[M.real_name]'s ID Card"
 			W.access = list(access_library)
 			W.assignment = "Assistant"
+			W.registered_name = M.real_name
+			M.equip_to_slot_or_del(W, slot_wear_id)
+		if("mime")
+			M.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack(M), slot_back)
+			M.equip_to_slot_or_del(new /obj/item/clothing/under/mime(M), slot_w_uniform)
+			M.equip_to_slot_or_del(new /obj/item/clothing/shoes/black(M), slot_shoes)
+			M.equip_to_slot_or_del(new /obj/item/device/pda/mime(M), slot_belt)
+			M.equip_to_slot_or_del(new /obj/item/clothing/gloves/white(M), slot_gloves)
+			M.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/mime(M), slot_wear_mask)
+			M.equip_to_slot_or_del(new /obj/item/clothing/head/beret(M), slot_head)
+			M.equip_to_slot_or_del(new /obj/item/clothing/suit/suspenders(M), slot_wear_suit)
+			M.equip_to_slot_or_del(new /obj/item/weapon/storage/box/survival(M.back), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/toy/crayon/mime(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/reagent_containers/food/drinks/bottle/bottleofnothing(M), slot_in_backpack)
+
+			var/obj/item/device/pda/pda = new(M)
+			pda.owner = M.real_name
+			pda.ownjob = "Mime"
+			pda.name = "PDA-[M.real_name] ([pda.ownjob])"
+			M.equip_to_slot_or_del(pda, slot_belt)
+
+			var/obj/item/weapon/card/id/W = new(M)
+			W.name = "[M.real_name]'s ID Card"
+			W.access = list(access_library, access_clown, access_theatre)
+			W.assignment = "Mime"
+			W.registered_name = M.real_name
+			M.equip_to_slot_or_del(W, slot_wear_id)
+
+		if("clown")
+			M.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/clown(M), slot_back)
+			M.equip_to_slot_or_del(new /obj/item/weapon/storage/box/survival(M.back), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/clothing/under/rank/clown(M), slot_w_uniform)
+			M.equip_to_slot_or_del(new /obj/item/clothing/shoes/clown_shoes(M), slot_shoes)
+			M.equip_to_slot_or_del(new /obj/item/device/pda/clown(M), slot_belt)
+			M.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/clown_hat(M), slot_wear_mask)
+			M.equip_to_slot_or_del(new /obj/item/weapon/reagent_containers/food/snacks/grown/banana(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/bikehorn(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/stamp/clown(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/toy/crayon/rainbow(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/storage/fancy/crayons(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/toy/waterflower(M), slot_in_backpack)
+
+			var/obj/item/device/pda/pda = new(M)
+			pda.owner = M.real_name
+			pda.ownjob = "Clown"
+			pda.name = "PDA-[M.real_name] ([pda.ownjob])"
+			M.equip_to_slot_or_del(pda, slot_belt)
+
+			var/obj/item/weapon/card/id/W = new(M)
+			W.name = "[M.real_name]'s ID Card"
+			W.access = list(access_library, access_clown, access_theatre)
+			W.assignment = "Clown"
 			W.registered_name = M.real_name
 			M.equip_to_slot_or_del(W, slot_wear_id)
 

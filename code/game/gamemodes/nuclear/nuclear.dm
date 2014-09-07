@@ -63,8 +63,8 @@
 	for(var/datum/mind/synd_mind in syndicates)
 		synd_mind.assigned_role = "MODE" //So they aren't chosen for other jobs.
 		synd_mind.special_role = "Syndicate"//So they actually have a special role/N
-		log_game("[synd_mind.key] with age [synd_mind.current.client.player_age] has been selected as a nuclear operative")
-		message_admins("[synd_mind.key] with age [synd_mind.current.client.player_age] has been selected as a nuclear operative",0,1)
+	//	log_game("[synd_mind.key] with age [synd_mind.current.client.player_age] has been selected as a nuclear operative")
+	//	message_admins("[synd_mind.key] with age [synd_mind.current.client.player_age] has been selected as a nuclear operative",0,1)
 	return 1
 
 
@@ -124,13 +124,13 @@
 	for(var/obj/effect/landmark/A in landmarks_list) //Add commander spawn places first, really should only be one though.
 		if(A.name == "Syndicate-Commander")
 			synd_comm_spawn = get_turf(A)
-			del(A)
+			qdel(A)
 			continue
 
 	for(var/obj/effect/landmark/A in landmarks_list)
 		if(A.name == "Syndicate-Spawn")
 			synd_spawn += get_turf(A)
-			del(A)
+			qdel(A)
 			continue
 
 	var/obj/effect/landmark/uplinklocker = locate("landmark*Syndicate-Uplink")	//i will be rewriting this shortly

@@ -231,6 +231,8 @@
 	src.amount = length
 	if (param_color)
 		color = param_color
+	else
+		color = item_color
 	pixel_x = rand(-2,2)
 	pixel_y = rand(-2,2)
 	updateicon()
@@ -239,6 +241,7 @@
 /obj/item/weapon/cable_coil/proc/updateicon()
 	if (!color)
 		color = pick(COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_ORANGE, COLOR_WHITE, COLOR_PINK, COLOR_YELLOW, COLOR_CYAN)
+		item_color = color
 	if(amount == 1)
 		icon_state = "coil1"
 		name = "cable piece"
@@ -308,7 +311,7 @@
 			return
 
 		else
-			user << "<span class='notice'>You transfer [MAXCOIL - src.amount ] length\s of cable from one coil to the other.</span>"
+			user << "<span class='notice'>You transfer [MAXCOIL - C.amount ] length\s of cable from one coil to the other.</span>"
 			src.amount -= (MAXCOIL-C.amount)
 			src.updateicon()
 			src.update_wclass()

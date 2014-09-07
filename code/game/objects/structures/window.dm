@@ -35,32 +35,32 @@
 /obj/structure/window/ex_act(severity)
 	switch(severity)
 		if(1.0)
-			del(src)
+			qdel(src)
 			return
 		if(2.0)
 			new /obj/item/weapon/shard(loc)
 			if(reinf) new /obj/item/stack/rods(loc)
-			del(src)
+			qdel(src)
 			return
 		if(3.0)
 			if(prob(50))
 				new /obj/item/weapon/shard(loc)
 				if(reinf) new /obj/item/stack/rods(loc)
-				del(src)
+				qdel(src)
 				return
 
 
 /obj/structure/window/blob_act()
 	new /obj/item/weapon/shard(loc)
 	if(reinf) new /obj/item/stack/rods(loc)
-	del(src)
+	qdel(src)
 
 
 /obj/structure/window/meteorhit()
 	//world << "glass at [x],[y],[z] Mhit"
 	new /obj/item/weapon/shard( loc )
 	if(reinf) new /obj/item/stack/rods( loc)
-	del(src)
+	qdel(src)
 
 
 /obj/structure/window/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
@@ -113,7 +113,7 @@
 		user.visible_message("<span class='danger'>[user] smashes through [src]!</span>")
 		new /obj/item/weapon/shard(loc)
 		if(reinf) new /obj/item/stack/rods(loc)
-		del(src)
+		qdel(src)
 	else if (usr.a_intent == "hurt")
 		playsound(src.loc, 'sound/effects/glassknock.ogg', 80, 1)
 		usr.visible_message("\red [usr.name] bangs against the [src.name]!", \
@@ -137,7 +137,7 @@
 		user.visible_message("<span class='danger'>[user] smashes through [src]!</span>")
 		new /obj/item/weapon/shard(loc)
 		if(reinf) new /obj/item/stack/rods(loc)
-		del(src)
+		qdel(src)
 	else	//for nicer text~
 		user.visible_message("<span class='danger'>[user] smashes into [src]!</span>")
 		playsound(loc, 'sound/effects/Glasshit.ogg', 100, 1)
@@ -255,7 +255,7 @@
 		else
 			new shardtype(loc)
 			if(reinf) new /obj/item/stack/rods(loc)
-		del(src)
+		Destroy(src)
 		return
 
 
@@ -324,7 +324,7 @@
 	return
 
 
-/obj/structure/window/Del()
+/obj/structure/window/Destroy()
 	density = 0
 	update_nearby_tiles()
 	playsound(src, "shatter", 70, 1)
@@ -349,7 +349,7 @@
 
 //checks if this window is full-tile one
 /obj/structure/window/proc/is_fulltile()
-	if(dir in list(5,6,9,10))
+	if(dir & (dir - 1))
 		return 1
 	return 0
 
