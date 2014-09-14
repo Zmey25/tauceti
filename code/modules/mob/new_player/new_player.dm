@@ -436,8 +436,12 @@
 		new_character.dna.UpdateSE()
 		CatchThisBug("Proc: gameticker/create_characters, stage: updating SE END")
 		CatchThisBug("Proc: gameticker/create_characters, stage: manual mind transfer START")
-		new_character.key = key		//Manually transfer the key to log them in
-		CatchThisBug("Proc: gameticker/create_characters, stage: manual mind transfer [new_character.key] END")
+		if(key)
+			new_character.key = key		//Manually transfer the key to log them in
+			CatchThisBug("Proc: gameticker/create_characters, stage: manual mind transfer [new_character.key] END")
+		else
+			CatchThisBug("Proc: gameticker/create_characters, stage: manual mind transfer - ACHTUNG no player key")	
+		
 		CatchThisBug("Proc: gameticker/create_characters, stage: finished new_character - [new_character]")
 		return new_character
 
