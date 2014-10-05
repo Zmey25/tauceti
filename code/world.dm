@@ -22,7 +22,7 @@ proc/CatchThisBug(text)
 	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
 
 	var/date_string2 = time2text(world.realtime, "MM-DD-hh-mm")
-	ctbfile = file("ctflogs/[date_string2].log")
+	ctbfile = file("ctblogs/[date_string2].log")
 
 	if(byond_version < RECOMMENDED_VERSION)
 		world.log << "Your server's byond version does not meet the recommended requirements for this server. Please update BYOND"
