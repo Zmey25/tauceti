@@ -24,6 +24,7 @@
 						log_access("Notice: [key_name(src)] has the same [matches] as [key_name(M)] (no longer logged in).")
 
 /mob/Login()
+	CatchThisBug("Proc: /mob/Login, stage: START PROC")
 
 	player_list |= src
 	update_Login_details()
@@ -56,4 +57,6 @@
 		if(H.species && H.species.abilities)
 			client.verbs |= H.species.abilities
 
+	CatchThisBug("Proc: gameticker/setup, stage: nanomanager.send_resources")
 	nanomanager.send_resources(client)
+	CatchThisBug("Proc: /mob/Login, stage: END PROC")
