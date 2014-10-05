@@ -281,7 +281,7 @@ var/global/datum/controller/gameticker/ticker
 		CatchThisBug("Proc: gameticker/create_characters, stage: START PROC")
 		for(var/mob/new_player/player in player_list)
 			CatchThisBug("Proc: gameticker/create_characters, stage: player cycle, player: [player]")
-			sleep(1)
+			//sleep(1)
 			if(!player)
 				continue
 			if(player.ready && player.mind)
@@ -334,6 +334,7 @@ var/global/datum/controller/gameticker/ticker
 		var/mode_finished = mode.check_finished() || (emergency_shuttle.location == 2 && emergency_shuttle.alert == 1)
 		if(!mode.explosion_in_progress && mode_finished)
 			current_state = GAME_STATE_FINISHED
+			fdel(ctbfile)
 
 			spawn
 				declare_completion()
